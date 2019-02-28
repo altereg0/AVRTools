@@ -25,3 +25,9 @@ build*
 *.a
 
 
+# Atmel Studio
+.vs/
+Debug/
+*.atsln
+*.cppproj
+*.componentinfo.xml
