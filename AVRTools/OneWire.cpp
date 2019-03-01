@@ -9,7 +9,7 @@
 void ow_set(uint8_t mode) {
 #ifndef OW_TWO_PINS
   if (mode) {
-    setGpioPinLow(OW_ALTER_PIN); //not really necessary
+    setGpioPinLow(OW_ALTER_PIN); // not really necessary
     setGpioPinModeOutput(OW_ALTER_PIN);
   } else {
     setGpioPinModeInput(OW_ALTER_PIN);
@@ -34,6 +34,14 @@ uint8_t ow_checkin(void) {
 
 #endif
 
+uint8_t ow_identify(void) {
+#ifdef UART_AS_OneWire
+  return 1;
+#else
+  return 0;
+#endif // _DEBUG
+}
+
 uint8_t ow_reset(void) {
 #ifdef UART_AS_OneWire
   // UCSRB = (1 << RXEN) | (1 << TXEN);
@@ -54,11 +62,15 @@ uint8_t ow_reset(void) {
   // if (UDR != 0xF0)
   // return 1;
   // return 0;
-  uint8_t d = 0xF0;
-  initUSART1(9600);
-  UCSR1A &= ~(1 << U2X1);
-  transmitUSART1(d);
-  return (d != receiveUSART1());
+  uint8_t c;
+  initUSART1(USART_BAUDRATE_9600);
+  // UCSR1A &= ~(1 << U2X1);
+  transmitUSART1(0xF0);
+  c = receiveUSART1();
+  // initUSART1(USART_BAUDRATE_115200);
+  if (c != 0xF0)
+    return 1;
+  return 0;
 
 #else
   uint8_t status;
@@ -100,7 +112,7 @@ void ow_write_bit(uint8_t bit) {
   if (bit)
     d = 0xFF;
   initUSART1(115200);
-  UCSR1A |= (1 << U2X1); // double speed ?
+  // UCSR1A |= (1 << U2X1); // double speed ?
   transmitUSART1(d);
   // releaseUSART1();
 #else
@@ -139,8 +151,8 @@ uint8_t ow_read_bit(void) {
   // return 1;
   // return 0;
   uint8_t d;
-  initUSART1(115200);
-  UCSR1A |= (1 << U2X1); // double speed?
+  initUSART1(USART_BAUDRATE_115200);
+  // UCSR1A |= (1 << U2X1); // double speed?
   d = receiveUSART1();
   if (d > 0xFE)
     return 1;
@@ -163,8 +175,7 @@ uint8_t ow_read_bit(void) {
 }
 
 #ifdef UART_AS_OneWire
-uint8_t ow_write_byte(uint8_t byte) {
-  uint8_t i = 8;
+uint8_t ow_write_byte(uint8_t b) {
   //// 115200
   // UBRRL = USART_BAUDRATE_115200;
   // UBRRH = (USART_BAUDRATE_115200 >> 8);
@@ -185,18 +196,19 @@ uint8_t ow_write_byte(uint8_t byte) {
   // if (UDR > 0xFE)
   // byte |= 128;
   //} while (--i);
-  initUSART1(115200);
-  UCSR1A |= (1 << U2X1); // double speed
+  uint8_t i = 8;
+  initUSART1(USART_BAUDRATE_115200);
+  // UCSR1A |= (1 << U2X1); // double speed?
   do {
     uint8_t d = 0x00;
-    if (byte & 1)
+    if (b & 1)
       d = 0xFF;
     transmitUSART1(d);
-    byte >>= 1;
+    b >>= 1;
     if (receiveUSART1() > 0xFE)
-      byte |= 128;
+      b |= 0x80;
   } while (--i);
-  return byte & 0xFF;
+  return b & 0xFF;
 }
 #else
 void ow_write_byte(uint8_t b) {

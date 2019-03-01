@@ -4,7 +4,7 @@
 #include "ArduinoPins.h"
 #include "GpioPinMacros.h"
 
-#define MAXDEVICES 10
+#define MAXDEVICES 4
 
 // USART-driven 1-wire emulation
 //#define UART_AS_OneWire
@@ -14,8 +14,8 @@
 
 #ifdef UART_AS_OneWire
 //#define USART_BAUDRATE_57600 (((F_CPU / (57600 * 16UL))) - 1)
-//#define USART_BAUDRATE_115200 (((F_CPU / (115200 * 16UL))) - 1)
-//#define USART_BAUDRATE_9600 (((F_CPU / (9600 * 16UL))) - 1)
+#define USART_BAUDRATE_115200 115200
+#define USART_BAUDRATE_9600 9600
 #else
 #include <util/delay.h>
 
@@ -52,6 +52,8 @@
 
 // rom-code size including CRC
 #define OW_ROMCODE_SIZE 8
+
+uint8_t ow_identify(void);
 
 uint8_t ow_reset(void);
 void ow_write_bit(uint8_t bit);
