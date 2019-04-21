@@ -102,11 +102,10 @@ void USART0::start(unsigned long baudRate, UsartSerialConfiguration config) {
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     //enable power
-    PRR0 &= !(1 << PRUSART0);
+    PRR0 &= ~(1 << PRUSART0);
     // Asynchronous mode, with everything else off
     UCSR0A &= ~((1 << U2X0) | (1 << MPCM0));
-    UCSR0B &=
-        ~((1 << RXCIE0) | (1 << TXCIE0) | (1 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (1 << UCSZ02) | (1 << TXB80));
+    UCSR0B &= ~((1 << RXCIE0) | (1 << TXCIE0) | (1 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (1 << UCSZ02) | (1 << TXB80));
     UCSR0C = config;
 
     // Set baud rate

@@ -68,6 +68,48 @@ void initSystem() {
     TIMSK5 = 0; // Disable all interrupts
 
 #endif
+
+#if defined(__AVR_ATmega2560__)
+    /* On AVR devices all peripherals are enabled from power on reset, this
+     * disables all peripherals to save power. Driver shall enable peripheral if used */
+    //PRR0 =  PRTWI   PRTIM2  PRTIM0  –       PRTIM1  PRSPI     PRUSART0  PRADC
+    //PRR1 =  –       –       PRTIM5  PRTIM4  PRTIM3  PRUSART3  PRUSART2  PRUSART1
+    PRR0  = (1 << PRTWI) | (1 << PRTIM2) | (1 << PRTIM0) | (1 << PRTIM1) | (1 << PRSPI) | (1 << PRUSART0) | (1 << PRADC);
+    PRR1  = (1 << PRTIM5) | (1 << PRTIM4) | (1 << PRTIM3) | (1 << PRUSART3) | (1 << PRUSART2) | (1 << PRUSART1);
+    /* Set all pins to input pullup mode */
+    DDRA  = 0x00;
+    PORTA = 0xFF;
+
+    DDRB  = 0x00;
+    PORTB = 0xFF;
+
+    DDRC  = 0x00;
+    PORTC = 0xFF;
+
+    DDRD  = 0x00;
+    PORTD = 0xFF;
+
+    DDRE  = 0x00;
+    PORTE = 0xFF;
+
+    DDRF  = 0x00;
+    PORTF = 0xFF;
+
+    DDRG  = 0x00;
+    PORTG = 0x3F; // 6-bit port
+
+    DDRH  = 0x00;
+    PORTH = 0xFF;
+
+    DDRJ  = 0x00;
+    PORTJ = 0xFF;
+
+    DDRK  = 0x00;
+    PORTK = 0xFF;
+
+    DDRL  = 0x00;
+    PORTL = 0xFF;
+#endif
   }
 
   // Enable interrupts

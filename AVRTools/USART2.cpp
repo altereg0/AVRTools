@@ -95,10 +95,11 @@ void USART2::start(unsigned long baudRate, UsartSerialConfiguration config) {
   }
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    //enable power
+    PRR1 &= ~(1 << PRUSART2);
     // Asynchronous mode, with everything else off
     UCSR2A &= ~((1 << U2X2) | (1 << MPCM2));
-    UCSR2B &=
-        ~((1 << RXCIE2) | (1 << TXCIE2) | (1 << UDRIE2) | (1 << RXEN2) | (1 << TXEN2) | (1 << UCSZ22) | (1 << TXB82));
+    UCSR2B &= ~((1 << RXCIE2) | (1 << TXCIE2) | (1 << UDRIE2) | (1 << RXEN2) | (1 << TXEN2) | (1 << UCSZ22) | (1 << TXB82));
     UCSR2C = config;
 
     // Set baud rate
@@ -127,6 +128,8 @@ void USART2::stop() {
 
   // Turn off TX, RX, and interrupts
   UCSR2B &= ~((1 << RXCIE2) | (1 << TXCIE2) | (1 << UDRIE2) | (1 << RXEN2) | (1 << TXEN2));
+  //disable power
+  PRR1 |= (1 << PRUSART2);
 
   // Clear the receive buffer
   rxBuffer.clear();

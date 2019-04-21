@@ -95,10 +95,11 @@ void USART3::start(unsigned long baudRate, UsartSerialConfiguration config) {
   }
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    //enable power
+    PRR1 &= ~(1 << PRUSART3);
     // Asynchronous mode, with everything else off
     UCSR3A &= ~((1 << U2X3) | (1 << MPCM3));
-    UCSR3B &=
-        ~((1 << RXCIE3) | (1 << TXCIE3) | (1 << UDRIE3) | (1 << RXEN3) | (1 << TXEN3) | (1 << UCSZ32) | (1 << TXB83));
+    UCSR3B &= ~((1 << RXCIE3) | (1 << TXCIE3) | (1 << UDRIE3) | (1 << RXEN3) | (1 << TXEN3) | (1 << UCSZ32) | (1 << TXB83));
     UCSR3C = config;
 
     // Set baud rate
@@ -127,6 +128,8 @@ void USART3::stop() {
 
   // Turn off TX, RX, and interrupts
   UCSR3B &= ~((1 << RXCIE3) | (1 << TXCIE3) | (1 << UDRIE3) | (1 << RXEN3) | (1 << TXEN3));
+  //disable power
+  PRR1 |= (1 << PRUSART3);
 
   // Clear the receive buffer
   rxBuffer.clear();

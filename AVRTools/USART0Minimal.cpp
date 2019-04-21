@@ -30,7 +30,7 @@
 void initUSART0(unsigned long baudRate) {
   uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
   //enable power
-  PRR0 &= !(1 << PRUSART0);
+  PRR0 &= ~(1 << PRUSART0);
 
   UBRR0H               = baudSetting >> 8;               // shift the register right by 8 bits
   UBRR0L               = baudSetting;                    // set baud rate

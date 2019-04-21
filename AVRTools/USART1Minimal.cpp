@@ -31,6 +31,8 @@
 void initUSART1(unsigned long baudRate) {
   uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
 
+  //enable power
+  PRR1 &= ~(1 << PRUSART1);
   UBRR1H               = baudSetting >> 8;               // shift the register right by 8 bits
   UBRR1L               = baudSetting;                    // set baud rate
   UCSR1B |= (1 << TXEN1) | (1 << RXEN1);   // enable receiver and transmitter
@@ -61,6 +63,8 @@ unsigned char receiveUSART1() {
 
 void releaseUSART1() {
   UCSR1B = 0;
+  //disable power
+  PRR1 |= (1 << PRUSART1);
 }
 
 #endif
