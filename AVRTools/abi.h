@@ -17,8 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -35,27 +33,21 @@
  *
  */
 
-
 #ifndef abi_h
 #define abi_h
 
-
 #include <stdlib.h>
 
-__extension__ typedef int __guard __attribute__((mode (__DI__)));
+__extension__ typedef int __guard __attribute__((mode(__DI__)));
 
 extern "C"
 {
-int __cxa_guard_acquire( __guard* );
-void __cxa_guard_release ( __guard* );
-void __cxa_guard_abort ( __guard* );
+int __cxa_guard_acquire(__guard *);
+void __cxa_guard_release(__guard *);
+void __cxa_guard_abort(__guard *);
 
-void __cxa_pure_virtual() __attribute__ ((__noreturn__));
-void __cxa_deleted_virtual() __attribute__ ((__noreturn__));
+void __cxa_pure_virtual() __attribute__((__noreturn__));
+void __cxa_deleted_virtual() __attribute__((__noreturn__));
 }
-
-
-
-
 
 #endif

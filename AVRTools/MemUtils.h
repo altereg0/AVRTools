@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -31,8 +29,6 @@
  *
  */
 
-
-
 #ifndef MemUtils_h
 #define MemUtils_h
 
@@ -42,10 +38,9 @@
  * \brief A namespace providing encapsulation for functions that report the available memory in SRAM
  */
 
-namespace MemUtils
-{
+namespace MemUtils {
 
-    /*!
+/*!
      * \brief Get the total free memory remaining in SRAM.
      *
      * This includes memory on the free-list (if the heap is used) as well as memory available between the heap and the stack
@@ -56,11 +51,9 @@ namespace MemUtils
      *
      */
 
-    size_t freeSRAM();
+size_t freeSRAM();
 
-
-
-    /*!
+/*!
      * \brief Get the free memory between the heap and the stack.
      *
      * This does not include any memory potentially available within the heap on the free-list.  It executes quickly, so
@@ -70,11 +63,9 @@ namespace MemUtils
      *
      */
 
-    size_t freeMemoryBetweenHeapAndStack();
+size_t freeMemoryBetweenHeapAndStack();
 
-
-
-    /*!
+/*!
      * \brief Reset the heap to an empty (virgin) state.
      *
      * This function resets the heap to an empty, pristine state.  Not only are all memory allocations
@@ -83,11 +74,9 @@ namespace MemUtils
      *
      */
 
-    void resetHeap();
+void resetHeap();
 
-
-
-    /*!
+/*!
      * \brief Get the free memory on the heap free-list.
      *
      * This shows the total free memory available on the free-list.  This is the sum of the free-blocks
@@ -100,11 +89,9 @@ namespace MemUtils
      *
      */
 
-    size_t memoryAvailableOnFreeList();
+size_t memoryAvailableOnFreeList();
 
-
-
-    /*!
+/*!
      * \brief Get information about the heap free-list.
      *
      * This provides information about the number of blocks on the free list, the size of the largest and
@@ -121,8 +108,8 @@ namespace MemUtils
      *
      */
 
-    size_t getFreeListStats( int* nbrBlocks, size_t* sizeSmallestBlock, size_t* sizeLargestBlock );
+size_t getFreeListStats(int *nbrBlocks, size_t *sizeSmallestBlock, size_t *sizeLargestBlock);
 
-};
+} // namespace MemUtils
 
 #endif

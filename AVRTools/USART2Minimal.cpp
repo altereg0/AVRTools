@@ -20,68 +20,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 #include "USART2Minimal.h"
 
 #include <stdint.h>
 
 #include <avr/io.h>
 
-
-
 #if defined(__AVR_ATmega2560__)
 
+void initUSART2(unsigned long baudRate) {
+  uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
 
-void initUSART2( unsigned long baudRate )
-{
-    uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
-
-    UBRR2H = baudSetting >> 8;                      // shift the register right by 8 bits
-    UBRR2L = baudSetting;                           // set baud rate
-    UCSR2B |= ( 1 << TXEN2 ) | ( 1 << RXEN2 );      // enable receiver and transmitter
-    UCSR2C |= ( 1 << UCSZ20 ) | ( 1 << UCSZ21 );    // 8 bit data format
+  UBRR2H               = baudSetting >> 8;               // shift the register right by 8 bits
+  UBRR2L               = baudSetting;                    // set baud rate
+  UCSR2B |= (1 << TXEN2) | (1 << RXEN2);   // enable receiver and transmitter
+  UCSR2C |= (1 << UCSZ20) | (1 << UCSZ21); // 8 bit data format
 }
 
+void transmitUSART2(unsigned char data) {
+  while (!(UCSR2A & (1 << UDRE2))) // wait while register is free
+    ;
+  UDR2 = data; // load data in the register
+}
 
-void transmitUSART2( unsigned char data )
-{
-    while ( !( UCSR2A & (1<<UDRE2) ) )              // wait while register is free
+void transmitUSART2(unsigned char *data) {
+  if (data) {
+    while (*data) {
+      while (!(UCSR2A & (1 << UDRE2))) // wait while register is free
         ;
-    UDR2 = data;                                    // load data in the register
-}
-
-
-void transmitUSART2( unsigned char* data )
-{
-    if ( data )
-    {
-        while ( *data )
-        {
-            while ( !( UCSR2A & (1<<UDRE2) ) )              // wait while register is free
-                ;
-            UDR2 = *data++;                                 // load data in the register
-        }
+      UDR2 = *data++; // load data in the register
     }
+  }
 }
 
-
-unsigned char receiveUSART2()
-{
-    while ( !UCSR2A & (1<<RXC2) )                     // wait while data is being received
-        ;
-    return UDR2;                                     // return 8-bit data
+unsigned char receiveUSART2() {
+  while (!(UCSR2A & (1 << RXC2))) // wait while data is being received
+    ;
+  return UDR2; // return 8-bit data
 }
 
-
-void releaseUSART2()
-{
-    UCSR2B = 0;
+void releaseUSART2() {
+  UCSR2B = 0;
 }
-
-
-
 
 #endif

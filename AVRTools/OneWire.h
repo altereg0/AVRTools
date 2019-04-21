@@ -21,7 +21,7 @@
 
 //#define OW_ALTER_PIN pPin12
 #ifndef OW_TWO_PINS
-#define OW_ALTER_PIN pPin12
+#define OW_ALTER_PIN pPin03
 #else
 #define OW_ALTER_PIN_IN pPin12
 #define OW_ALTER_PIN_OUT pPin13
@@ -50,23 +50,25 @@
 #define OW_DS18B20_FAMILY_CODE 0x28
 #define OW_DS2433_FAMILY_CODE 0x23
 
-// rom-code size including CRC
+// rom_-code size including CRC
 #define OW_ROMCODE_SIZE 8
 
-uint8_t ow_identify(void);
+uint8_t ow_identify();
 
-uint8_t ow_reset(void);
+uint8_t ow_reset(); // return 1 if device detected, 0 if none
+
 void ow_write_bit(uint8_t bit);
-uint8_t ow_read_bit(void);
+uint8_t ow_read_bit();
 
 #ifndef UART_AS_OneWire
-uint8_t ow_read_byte(void);
+uint8_t ow_read_byte();
 void ow_write_byte(uint8_t byte);
 #else
 uint8_t ow_write_byte(uint8_t byte);
 #define ow_read_byte() ow_write_byte(0xFF)
 #endif
 
+uint8_t search_ow_devices(uint8_t (&owDevicesIDs)[MAXDEVICES][8]); // поиск всех устройств на шине
 uint8_t ow_search_rom(uint8_t diff, uint8_t *id);
 void ow_find_rom(uint8_t *diff, uint8_t id[]);
 uint8_t ow_read_rom(uint8_t *buffer);

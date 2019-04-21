@@ -20,67 +20,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 #include "USART3Minimal.h"
 
 #include <stdint.h>
 
 #include <avr/io.h>
 
-
-
-
 #if defined(__AVR_ATmega2560__)
 
+void initUSART3(unsigned long baudRate) {
+  uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
 
-void initUSART3( unsigned long baudRate )
-{
-    uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
-
-    UBRR3H = baudSetting >> 8;                      // shift the register right by 8 bits
-    UBRR3L = baudSetting;                           // set baud rate
-    UCSR3B |= ( 1 << TXEN3 ) | ( 1 << RXEN3 );      // enable receiver and transmitter
-    UCSR3C |= ( 1 << UCSZ30 ) | ( 1 << UCSZ31 );    // 8 bit data format
+  UBRR3H               = baudSetting >> 8;               // shift the register right by 8 bits
+  UBRR3L               = baudSetting;                    // set baud rate
+  UCSR3B |= (1 << TXEN3) | (1 << RXEN3);   // enable receiver and transmitter
+  UCSR3C |= (1 << UCSZ30) | (1 << UCSZ31); // 8 bit data format
 }
 
+void transmitUSART3(unsigned char data) {
+  while (!(UCSR3A & (1 << UDRE3))) // wait while register is free
+    ;
+  UDR3 = data; // load data in the register
+}
 
-void transmitUSART3( unsigned char data )
-{
-    while ( !( UCSR3A & (1<<UDRE3) ) )              // wait while register is free
+void transmitUSART3(unsigned char *data) {
+  if (data) {
+    while (*data) {
+      while (!(UCSR3A & (1 << UDRE3))) // wait while register is free
         ;
-    UDR3 = data;                                    // load data in the register
-}
-
-
-void transmitUSART3( unsigned char* data )
-{
-    if ( data )
-    {
-        while ( *data )
-        {
-            while ( !( UCSR3A & (1<<UDRE3) ) )              // wait while register is free
-                ;
-            UDR3 = *data++;                                 // load data in the register
-        }
+      UDR3 = *data++; // load data in the register
     }
+  }
 }
 
-
-unsigned char receiveUSART3()
-{
-    while ( !UCSR3A & (1<<RXC3) )                     // wait while data is being received
-        ;
-    return UDR3;                                     // return 8-bit data
+unsigned char receiveUSART3() {
+  while (!(UCSR3A & (1 << RXC3))) // wait while data is being received
+    ;
+  return UDR3; // return 8-bit data
 }
 
-
-void releaseUSART3()
-{
-    UCSR3B = 0;
+void releaseUSART3() {
+  UCSR3B = 0;
 }
-
 
 #endif

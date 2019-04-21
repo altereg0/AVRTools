@@ -21,12 +21,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if !defined(__AVR_ATmega2560__)
 #error "USART1 doesn't exist on ATMega328p (Arduino Uno); you can only use this on ATMega2560 (Arduino Mega)."
 #endif
-
-
 
 /*!
  * \file
@@ -67,10 +64,6 @@
  * if you link against USART1.cpp.
  */
 
-
-
-
-
 #ifndef USART1_h
 #define USART1_h
 
@@ -79,7 +72,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
 
 #ifndef USART_SERIAL_CONFIG
 #define USART_SERIAL_CONFIG
@@ -94,48 +86,43 @@
  *
  * \hideinitializer
  */
-enum UsartSerialConfiguration
-{
-    kSerial_5N1 = 0x00,     //!< 5 data bits, no parity, 1 stop bit  \hideinitializer
-    kSerial_6N1 = 0x02,     //!< 6 data bits, no parity, 1 stop bit  \hideinitializer
-    kSerial_7N1 = 0x04,     //!< 7 data bits, no parity, 1 stop bit  \hideinitializer
-    kSerial_8N1 = 0x06,     //!< 8 data bits, no parity, 1 stop bit  \hideinitializer
-    kSerial_5N2 = 0x08,     //!< 5 data bits, no parity, 2 stop bits  \hideinitializer
-    kSerial_6N2 = 0x0A,     //!< 6 data bits, no parity, 2 stop bits  \hideinitializer
-    kSerial_7N2 = 0x0C,     //!< 7 data bits, no parity, 2 stop bits  \hideinitializer
-    kSerial_8N2 = 0x0E,     //!< 8 data bits, no parity, 2 stop bits  \hideinitializer
-    kSerial_5E1 = 0x20,     //!< 5 data bits, even parity, 1 stop bit  \hideinitializer
-    kSerial_6E1 = 0x22,     //!< 6 data bits, even parity, 1 stop bit  \hideinitializer
-    kSerial_7E1 = 0x24,     //!< 7 data bits, even parity, 1 stop bit  \hideinitializer
-    kSerial_8E1 = 0x26,     //!< 8 data bits, even parity, 1 stop bit  \hideinitializer
-    kSerial_5E2 = 0x28,     //!< 5 data bits, even parity, 2 stop bits  \hideinitializer
-    kSerial_6E2 = 0x2A,     //!< 6 data bits, even parity, 2 stop bits  \hideinitializer
-    kSerial_7E2 = 0x2C,     //!< 7 data bits, even parity, 2 stop bits  \hideinitializer
-    kSerial_8E2 = 0x2E,     //!< 8 data bits, even parity, 2 stop bits  \hideinitializer
-    kSerial_5O1 = 0x30,     //!< 5 data bits, odd parity, 1 stop bit  \hideinitializer
-    kSerial_6O1 = 0x32,     //!< 6 data bits, odd parity, 1 stop bit  \hideinitializer
-    kSerial_7O1 = 0x34,     //!< 7 data bits, odd parity, 1 stop bit  \hideinitializer
-    kSerial_8O1 = 0x36,     //!< 8 data bits, odd parity, 1 stop bit  \hideinitializer
-    kSerial_5O2 = 0x38,     //!< 5 data bits, odd parity, 2 stop bits  \hideinitializer
-    kSerial_6O2 = 0x3A,     //!< 6 data bits, odd parity, 2 stop bits  \hideinitializer
-    kSerial_7O2 = 0x3C,     //!< 7 data bits, odd parity, 2 stop bits  \hideinitializer
-    kSerial_8O2 = 0x3E      //!< 8 data bits, odd parity, 2 stop bits  \hideinitializer
+enum UsartSerialConfiguration {
+  kSerial_5N1 = 0x00, //!< 5 data bits, no parity, 1 stop bit  \hideinitializer
+  kSerial_6N1 = 0x02, //!< 6 data bits, no parity, 1 stop bit  \hideinitializer
+  kSerial_7N1 = 0x04, //!< 7 data bits, no parity, 1 stop bit  \hideinitializer
+  kSerial_8N1 = 0x06, //!< 8 data bits, no parity, 1 stop bit  \hideinitializer
+  kSerial_5N2 = 0x08, //!< 5 data bits, no parity, 2 stop bits  \hideinitializer
+  kSerial_6N2 = 0x0A, //!< 6 data bits, no parity, 2 stop bits  \hideinitializer
+  kSerial_7N2 = 0x0C, //!< 7 data bits, no parity, 2 stop bits  \hideinitializer
+  kSerial_8N2 = 0x0E, //!< 8 data bits, no parity, 2 stop bits  \hideinitializer
+  kSerial_5E1 = 0x20, //!< 5 data bits, even parity, 1 stop bit  \hideinitializer
+  kSerial_6E1 = 0x22, //!< 6 data bits, even parity, 1 stop bit  \hideinitializer
+  kSerial_7E1 = 0x24, //!< 7 data bits, even parity, 1 stop bit  \hideinitializer
+  kSerial_8E1 = 0x26, //!< 8 data bits, even parity, 1 stop bit  \hideinitializer
+  kSerial_5E2 = 0x28, //!< 5 data bits, even parity, 2 stop bits  \hideinitializer
+  kSerial_6E2 = 0x2A, //!< 6 data bits, even parity, 2 stop bits  \hideinitializer
+  kSerial_7E2 = 0x2C, //!< 7 data bits, even parity, 2 stop bits  \hideinitializer
+  kSerial_8E2 = 0x2E, //!< 8 data bits, even parity, 2 stop bits  \hideinitializer
+  kSerial_5O1 = 0x30, //!< 5 data bits, odd parity, 1 stop bit  \hideinitializer
+  kSerial_6O1 = 0x32, //!< 6 data bits, odd parity, 1 stop bit  \hideinitializer
+  kSerial_7O1 = 0x34, //!< 7 data bits, odd parity, 1 stop bit  \hideinitializer
+  kSerial_8O1 = 0x36, //!< 8 data bits, odd parity, 1 stop bit  \hideinitializer
+  kSerial_5O2 = 0x38, //!< 5 data bits, odd parity, 2 stop bits  \hideinitializer
+  kSerial_6O2 = 0x3A, //!< 6 data bits, odd parity, 2 stop bits  \hideinitializer
+  kSerial_7O2 = 0x3C, //!< 7 data bits, odd parity, 2 stop bits  \hideinitializer
+  kSerial_8O2 = 0x3E  //!< 8 data bits, odd parity, 2 stop bits  \hideinitializer
 };
 
 #endif
-
-
-
 
 /*!
  * \brief This namespace bundles a high-level buffered interface to the %USART1 hardware.  It provides logical cohesion and
  * prevents namespace collisions.
  */
 
-namespace USART1
-{
+namespace USART1 {
 
-    /*!
+/*!
     * \brief Initialize %USART1 for buffered, asynchronous serial communications using interrupts.
     *
     * You must call this function before using any of the other USART1 functions.
@@ -148,10 +135,9 @@ namespace USART1
     * If omitted, the default is 8 data bits, no parity, and 1 stop bit.
     */
 
-    void start( unsigned long baudRate, UsartSerialConfiguration config = kSerial_8N1 );
+void start(unsigned long baudRate, UsartSerialConfiguration config = kSerial_8N1);
 
-
-    /*!
+/*!
     * \brief Stops buffered serial communications using interrupts on %USART1.
     *
     * After calling this function, Arduino pins 0 and 1 are released and available for
@@ -161,11 +147,9 @@ namespace USART1
     * again call start().
     */
 
-    void stop();
+void stop();
 
-
-
-    /*!
+/*!
     * \brief Write a single byte to the transmit buffer.
     *
     * This function attempts to queue the data into the transmit buffer.  If there is
@@ -179,10 +163,9 @@ namespace USART1
     * \returns the number of bytes written into the output buffer.
     */
 
-    size_t write( char c );
+size_t write(char c);
 
-
-    /*!
+/*!
     * \brief Write a null-terminated string to the transmit buffer.
     *
     * This function attempts to queue the data into the transmit buffer.  If there is
@@ -196,10 +179,9 @@ namespace USART1
     * \returns the number of bytes written into the output buffer.
     */
 
-    size_t write( const char* c );
+size_t write(const char *c);
 
-
-    /*!
+/*!
     * \brief Write a character array of given size to the transmit buffer.
     *
     * This function attempts to queue the data into the transmit buffer.  If there is
@@ -215,10 +197,9 @@ namespace USART1
     * \returns the number of characters written into the output buffer.
     */
 
-    size_t write( const char* c, size_t n );
+size_t write(const char *c, size_t n);
 
-
-    /*!
+/*!
     * \brief Write a byte array of given size to the transmit buffer.
     *
     * This function attempts to queue the data into the transmit buffer.  If there is
@@ -234,10 +215,9 @@ namespace USART1
     * \returns the number of bytes written into the output buffer.
     */
 
-    size_t write( const uint8_t* c, size_t n );
+size_t write(const uint8_t *c, size_t n);
 
-
-    /*!
+/*!
     * \brief Flush transmit buffer.
     *
     * This function blocks until the transmit buffer is empty and the last byte has been transmitted by %USART1.
@@ -245,45 +225,35 @@ namespace USART1
     * complete.
     */
 
-    void flush();
+void flush();
 
-
-    /*!
+/*!
     * \brief Examine the next character in the receive buffer without removing it from the buffer.
     *
     * \returns if there is a value in the receive buffer, it returns the value (a number between 0 and 255); if
     * the receive buffer is empty, it returns -1;
     */
 
-    int peek();
+int peek();
 
-
-    /*!
+/*!
     * \brief Return the next character in the receive buffer, removing it from the buffer.
     *
     * \returns if there is a value in the receive buffer, it returns the value (a number between 0 and 255)
     * and removes the value from the receive buffer; if the receive buffer is empty, it returns -1;
     */
 
-    int read();
+int read();
 
-
-    /*!
+/*!
     * \brief Determine if there is data in the receive buffer..
     *
     * \returns if the receive buffer contains data, it returns TRUE;
     * if the receive buffer is empty, it returns FALSE;
     */
 
-    bool available();
-};
-
-
-
-
-
-
-
+bool available();
+} // namespace USART1
 
 /*!
  * \brief Provides a high-end interface to serial communications using %USART1.
@@ -299,125 +269,113 @@ namespace USART1
  * the read buffer by actually reading the data regularly when receiving significant amounts of data.
  */
 
-class Serial1 : public Writer, public Reader
-{
+class Serial1 : public Writer, public Reader {
 public:
+  /*!
+   * \brief Configure the hardware for two-way serial communications, including turning on associated
+   * interrupts.  You must call this
+   * function before reading from or writing to Serial1 on %USART1.
+   *
+   * \arg \c baudRate the baud rate for the communications, usually one of the following
+   * values: 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, or 115200
+   * (although other values below can be specified).
+   *
+   * \arg \c config sets the configuration in term of data bits, parity, and stop bits.
+   * If omitted, the default is 8 data bits, no parity, and 1 stop bit.
+   */
+  void start(unsigned long baudRate, UsartSerialConfiguration config = kSerial_8N1) {
+    USART1::start(baudRate, config);
+  }
 
-    /*!
-     * \brief Configure the hardware for two-way serial communications, including turning on associated
-     * interrupts.  You must call this
-     * function before reading from or writing to Serial1 on %USART1.
-     *
-     * \arg \c baudRate the baud rate for the communications, usually one of the following
-     * values: 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, or 115200
-     * (although other values below can be specified).
-     *
-     * \arg \c config sets the configuration in term of data bits, parity, and stop bits.
-     * If omitted, the default is 8 data bits, no parity, and 1 stop bit.
-     */
-    void start( unsigned long baudRate, UsartSerialConfiguration config = kSerial_8N1 )
-    { USART1::start( baudRate, config ); }
+  /*!
+   * \brief Stops buffered serial communications using Serial1 on %USART1 by deconfiguring
+   * the hardware and turning off interrupts.
+   *
+   * After calling this function, Arduino pins 0 and 1 are released and available for
+   * use as ordinary digital pins.
+   *
+   * If you want to use Serial1 again for communications, you must call start() again.
+   */
+  void stop() {
+    USART1::stop();
+  }
 
+  /*!
+   * \brief Write a single character to the output stream.  This implements the pure virtual function
+   * Writer::write( char c ).
+   *
+   * \arg \c  the character to be written.
+   *
+   * \returns the number of bytes written.
+   */
+  virtual size_t write(char c);
 
-    /*!
-     * \brief Stops buffered serial communications using Serial1 on %USART1 by deconfiguring
-     * the hardware and turning off interrupts.
-     *
-     * After calling this function, Arduino pins 0 and 1 are released and available for
-     * use as ordinary digital pins.
-     *
-     * If you want to use Serial1 again for communications, you must call start() again.
-     */
-    void stop()
-    { USART1::stop(); }
+  /*!
+   * \brief Write a null-terminated string to the output stream.  This implements the pure virtual function
+   * Writer::write( char* str ).
+   *
+   * \arg \c str the string to be written.
+   *
+   * \returns the number of bytes written.
+   */
+  virtual size_t write(const char *str);
 
+  /*!
+   * \brief Write a given number of characters from a buffer to the output stream.  This implements the pure virtual function
+   * Writer::write( const char* buffer, size_t size ).
+   *
+   * \arg \c buffer the buffer of characters to write.
+   * \arg \c size the number of characters to write
+   *
+   * \returns the number of bytes written.
+   */
+  virtual size_t write(const char *buffer, size_t size);
 
+  /*!
+   * \brief Write a given number of bytes from a buffer to the output stream.  This implements the pure virtual function
+   * Writer::write( const uint8_t* buffer, size_t size ).
+   *
+   * \arg \c buffer the buffer of bytes to write.
+   * \arg \c size the number of bytes to write
+   *
+   * \returns the number of bytes written.
+   */
+  virtual size_t write(const uint8_t *buffer, size_t size);
 
+  /*!
+   * \brief Flush the output stream.  When this function returns, all previously
+   * written data will have been transmitted through the underlying output stream.
+   * This implements the pure virtual function Writer::flush().
+   */
+  virtual void flush();
 
+  // Virtual functions from Reader
 
-    /*!
-     * \brief Write a single character to the output stream.  This implements the pure virtual function
-     * Writer::write( char c ).
-     *
-     * \arg \c  the character to be written.
-     *
-     * \returns the number of bytes written.
-     */
-    virtual size_t write( char c );
+  /*!
+   * \brief Read and remove the next byte from the input stream.  This implements the pure virtual function
+   * Reader::read().
+   *
+   * \returns the next byte, or -1 if there is nothing to read in the input stream
+   * before timeout expires.
+   */
+  virtual int read();
 
-    /*!
-     * \brief Write a null-terminated string to the output stream.  This implements the pure virtual function
-     * Writer::write( char* str ).
-     *
-     * \arg \c str the string to be written.
-     *
-     * \returns the number of bytes written.
-     */
-    virtual size_t write( const char* str );
+  /*!
+   * \brief Examine the next byte from the input stream, without removing it.  This implements the pure
+   * virtual function Reader::peek().
+   *
+   * \returns the next byte, or -1 if there is nothing to read in the input stream
+   * before timeout expires.
+   */
+  virtual int peek();
 
-    /*!
-     * \brief Write a given number of characters from a buffer to the output stream.  This implements the pure virtual function
-     * Writer::write( const char* buffer, size_t size ).
-     *
-     * \arg \c buffer the buffer of characters to write.
-     * \arg \c size the number of characters to write
-     *
-     * \returns the number of bytes written.
-     */
-    virtual size_t write( const char* buffer, size_t size );
-
-    /*!
-     * \brief Write a given number of bytes from a buffer to the output stream.  This implements the pure virtual function
-     * Writer::write( const uint8_t* buffer, size_t size ).
-     *
-     * \arg \c buffer the buffer of bytes to write.
-     * \arg \c size the number of bytes to write
-     *
-     * \returns the number of bytes written.
-     */
-    virtual size_t write( const uint8_t* buffer, size_t size );
-
-    /*!
-     * \brief Flush the output stream.  When this function returns, all previously
-     * written data will have been transmitted through the underlying output stream.
-     * This implements the pure virtual function Writer::flush().
-     */
-    virtual void flush();
-
-
-
-    // Virtual functions from Reader
-
-    /*!
-     * \brief Read and remove the next byte from the input stream.  This implements the pure virtual function
-     * Reader::read().
-     *
-     * \returns the next byte, or -1 if there is nothing to read in the input stream
-     * before timeout expires.
-     */
-    virtual int read();
-
-
-    /*!
-     * \brief Examine the next byte from the input stream, without removing it.  This implements the pure
-     * virtual function Reader::peek().
-     *
-     * \returns the next byte, or -1 if there is nothing to read in the input stream
-     * before timeout expires.
-     */
-    virtual int peek();
-
-
-    /*!
-     * \brief Determine if data is available in the input stream.  This implements the pure
-     * virtual function Reader::available().
-     *
-     * \returns True if data is available in the stream; false if not.
-     */
-    virtual bool available();
+  /*!
+   * \brief Determine if data is available in the input stream.  This implements the pure
+   * virtual function Reader::available().
+   *
+   * \returns True if data is available in the stream; false if not.
+   */
+  virtual bool available();
 };
 
-
-
 #endif
-

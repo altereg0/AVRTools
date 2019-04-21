@@ -33,131 +33,100 @@
 
 #include "ArduinoPins.h"
 
-
-
-void SPI::enable()
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        // Set SS to high so a connected chip will be "deselected" by default
-        // If the SS pin is not already configured as an output
-        // then set it high (to enable the internal pull-up resistor)
-        if( isGpioPinModeInput( pSS ) )
-        {
-
-            setGpioPinHigh( pSS );
-        }
-
-        // When the SS pin is set as OUTPUT, it can be used as
-        // a general purpose output port (it doesn't influence
-        // SPI operations).
-        setGpioPinModeOutput( pSS );
-
-        // Warning: if the SS pin ever becomes a LOW INPUT then SPI
-        // automatically switches to Slave, so the data direction of
-        // the SS pin MUST be kept as OUTPUT.
-        SPCR |= _BV( MSTR );
-        SPCR |= _BV( SPE );
-
-        // Set direction register for SCK and MOSI pin.
-        // MISO pin automatically overrides to INPUT.
-        // By doing this AFTER enabling SPI, we avoid accidentally
-        // clocking in a single bit since the lines go directly
-        // from "input" to SPI control.
-        // http://code.google.com/p/arduino/issues/detail?id=888
-        setGpioPinModeOutput( pSCK );
-        setGpioPinModeOutput( pMOSI );
-
-        // Set a known configuration
-        SPI::configure( SPISettings() );
+void SPI::enable() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    // Set SS to high so a connected chip will be "deselected" by default
+    // If the SS pin is not already configured as an output
+    // then set it high (to enable the internal pull-up resistor)
+    if (isGpioPinModeInput(pSS)) {
+      setGpioPinHigh(pSS);
     }
+
+    // When the SS pin is set as OUTPUT, it can be used as
+    // a general purpose output port (it doesn't influence
+    // SPI operations).
+    setGpioPinModeOutput(pSS);
+
+    // Warning: if the SS pin ever becomes a LOW INPUT then SPI
+    // automatically switches to Slave, so the data direction of
+    // the SS pin MUST be kept as OUTPUT.
+    SPCR |= _BV(MSTR);
+    SPCR |= _BV(SPE);
+
+    // Set direction register for SCK and MOSI pin.
+    // MISO pin automatically overrides to INPUT.
+    // By doing this AFTER enabling SPI, we avoid accidentally
+    // clocking in a single bit since the lines go directly
+    // from "input" to SPI control.
+    // http://code.google.com/p/arduino/issues/detail?id=888
+    setGpioPinModeOutput(pSCK);
+    setGpioPinModeOutput(pMOSI);
+
+    // Set a known configuration
+    SPI::configure(SPISettings());
+  }
 }
 
-
-
-
-void SPI::disable()
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        SPCR &= ~_BV( SPE );
-    }
+void SPI::disable() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    SPCR &= ~_BV(SPE);
+  }
 }
 
+uint32_t SPI::transmit32(uint32_t data) {
+  union {
+    uint32_t val;
+    struct _anon_type {
+      uint8_t b0;
+      uint8_t b1;
+      uint8_t b2;
+      uint8_t b3;
+    }        _anon;
+  } in, out;
 
+  in.val = data;
 
+  if (SPCR & _BV(DORD)) {
+    SPDR = in._anon.b0;
+    asm volatile("nop"); // See transmit( uint8_t ) function
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b0 = SPDR;
 
-uint32_t SPI::transmit32( uint32_t data )
-{
-    union
-    {
-        uint32_t val;
-        struct
-        {
-            uint8_t b0;
-            uint8_t b1;
-            uint8_t b2;
-            uint8_t b3;
-        };
-    } in, out;
+    SPDR = in._anon.b1;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b1 = SPDR;
 
-    in.val = data;
+    SPDR = in._anon.b2;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b2 = SPDR;
 
-    if ( SPCR & _BV(DORD) )
-    {
-        SPDR = in.b0;
-        asm volatile( "nop" );              // See transmit( uint8_t ) function
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b0 = SPDR;
+    SPDR = in._anon.b3;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b3 = SPDR;
+  } else {
+    SPDR = in._anon.b3;
+    asm volatile("nop"); // See transmit( uint8_t ) function
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b3 = SPDR;
 
-        SPDR = in.b1;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b1 = SPDR;
+    SPDR = in._anon.b2;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b2 = SPDR;
 
-        SPDR = in.b2;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b2 = SPDR;
+    SPDR = in._anon.b1;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b1 = SPDR;
 
-        SPDR = in.b3;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b3 = SPDR;
-    }
-    else
-    {
-        SPDR = in.b3;
-        asm volatile( "nop" );              // See transmit( uint8_t ) function
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b3 = SPDR;
+    SPDR = in._anon.b0;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.b0 = SPDR;
+  }
 
-        SPDR = in.b2;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b2 = SPDR;
-
-        SPDR = in.b1;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b1 = SPDR;
-
-        SPDR = in.b0;
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ;
-        out.b0 = SPDR;
-    }
-
-    return out.val;
+  return out.val;
 }
-
-
-

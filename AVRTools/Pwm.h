@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -70,12 +68,8 @@
  *
  */
 
-
-
-
 #ifndef Pwm_h
 #define Pwm_h
-
 
 #include <stdint.h>
 
@@ -83,33 +77,28 @@
 
 #include "GpioPinMacros.h"
 
-
-
-#define _writeGpioPinPwm( ddr, port, pin, nbr, chl, ocr, com, tccr, value )                 \
-                                        do                                                  \
-                                        {                                                   \
-                                            if ( value <= 0 )                               \
-                                            {                                               \
-                                                tccr &= ~(1<<com);                          \
-                                                port &= ~(1<<nbr);                          \
-                                            }                                               \
-                                            else if ( value >= 255 )                        \
-                                            {                                               \
-                                                tccr &= ~(1<<com);                          \
-                                                port |= (1<<nbr);                           \
-                                            }                                               \
-                                            else                                            \
-                                            {                                               \
-                                                tccr |= (1<<com);                           \
-                                                ATOMIC_BLOCK( ATOMIC_RESTORESTATE )         \
-                                                {                                           \
-                                                    ocr = value;                            \
-                                                }                                           \
-                                            }                                               \
-                                        }                                                   \
-                                        while ( 0 )
-
-
+#define _writeGpioPinPwm(ddr, port, pin, nbr, chl, ocr, com, tccr, value) \
+    do                                                                    \
+    {                                                                     \
+        if (value <= 0)                                                   \
+        {                                                                 \
+            tccr &= ~(1 << com);                                          \
+            port &= ~(1 << nbr);                                          \
+        }                                                                 \
+        else if (value >= 255)                                            \
+        {                                                                 \
+            tccr &= ~(1 << com);                                          \
+            port |= (1 << nbr);                                           \
+        }                                                                 \
+        else                                                              \
+        {                                                                 \
+            tccr |= (1 << com);                                           \
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)                             \
+            {                                                             \
+                ocr = value;                                              \
+            }                                                             \
+        }                                                                 \
+    } while (0)
 
 /*!
  * \brief Write a PWM value to a pin.
@@ -140,10 +129,7 @@
  * \hideinitializer
  */
 
-#define writeGpioPinPwm( pinName, value )       _writeGpioPinPwm( pinName, value )
-
-
-
+#define writeGpioPinPwm(pinName, value) _writeGpioPinPwm(pinName, value)
 
 /*!
  * \brief Write a PWM value to a pin.
@@ -173,31 +159,21 @@
  *
  */
 
-inline void writeGpioPinPwmV( const GpioPinVariable& pinVar, uint8_t value )
-{
-    if ( value == 0 )
-    {
-        *(pinVar.tccr()) &= ~( 1 << pinVar.com() );
-        *(pinVar.port()) &= ~( 1 << pinVar.bitNbr() );
-
+inline void writeGpioPinPwmV(const GpioPinVariable &pinVar, uint8_t value) {
+  if (value == 0) {
+    *(pinVar.tccr()) &= ~(1 << pinVar.com());
+    *(pinVar.port()) &= ~(1 << pinVar.bitNbr());
+  } else if (value == 255) {
+    *(pinVar.tccr()) &= ~(1 << pinVar.com());
+    *(pinVar.port()) |= (1 << pinVar.bitNbr());
+  } else {
+    *(pinVar.tccr()) |= (1 << pinVar.com());
+    // Provide atomicity for 16-bit timers (not needed for 8-bit timers, but be safe)
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      *(pinVar.ocr()) = value;
     }
-    else if ( value == 255 )
-    {
-        *(pinVar.tccr()) &= ~( 1 << pinVar.com() );
-        *(pinVar.port()) |= ( 1 << pinVar.bitNbr() );
-    }
-    else
-    {
-        *(pinVar.tccr()) |= ( 1 << pinVar.com() );
-        // Provide atomicity for 16-bit timers (not needed for 8-bit timers, but be safe)
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            *(pinVar.ocr()) = value;
-        }
-    }
+  }
 }
-
-
 
 /*!
  * \brief Initialize timer0 for PWM.
@@ -228,7 +204,6 @@ inline void writeGpioPinPwmV( const GpioPinVariable& pinVar, uint8_t value )
 
 void initPwmTimer0();
 
-
 /*!
  * \brief Initialize timer1 for PWM.
  *
@@ -243,7 +218,6 @@ void initPwmTimer0();
 
 void initPwmTimer1();
 
-
 /*!
  * \brief Initialize timer2 for PWM.
  *
@@ -257,7 +231,6 @@ void initPwmTimer1();
  */
 
 void initPwmTimer2();
-
 
 /*!
  * \brief Clear timer0.
@@ -275,9 +248,6 @@ void initPwmTimer2();
 
 void clearTimer0();
 
-
-
-
 /*!
  * \brief Clear timer1.
  *
@@ -285,7 +255,6 @@ void clearTimer0();
  */
 
 void clearTimer1();
-
 
 /*!
  * \brief Clear timer2.
@@ -295,9 +264,7 @@ void clearTimer1();
 
 void clearTimer2();
 
-
 #if defined(__AVR_ATmega2560__)
-
 
 /*!
  * \brief Initialize timer3 for PWM.
@@ -314,7 +281,6 @@ void clearTimer2();
 
 void initPwmTimer3();
 
-
 /*!
  * \brief Initialize timer4 for PWM.
  *
@@ -329,8 +295,6 @@ void initPwmTimer3();
  */
 
 void initPwmTimer4();
-
-
 
 /*!
  * \brief Initialize timer5 for PWM.
@@ -347,9 +311,6 @@ void initPwmTimer4();
 
 void initPwmTimer5();
 
-
-
-
 /*!
  * \brief Clear timer3.
  *
@@ -360,7 +321,6 @@ void initPwmTimer5();
 
 void clearTimer3();
 
-
 /*!
  * \brief Clear timer4.
  *
@@ -370,7 +330,6 @@ void clearTimer3();
  */
 
 void clearTimer4();
-
 
 /*!
  * \brief Clear timer5.
@@ -385,4 +344,3 @@ void clearTimer5();
 #endif
 
 #endif
-

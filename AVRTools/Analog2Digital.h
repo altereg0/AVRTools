@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  * \file
  *
@@ -29,7 +28,6 @@
  *
  */
 
-
 #ifndef Analog2Digital_h
 #define Analog2Digital_h
 
@@ -37,43 +35,36 @@
 
 #include "GpioPinMacros.h"
 
-
 #if defined(__AVR_ATmega2560__)
-
 
 /*! \brief Constants representing voltage references
  *
  */
 
-enum A2DVoltageReference
-{
-    kA2dReferenceAREF = 0x00,    //!< Reference is AREF pin, internal VREF turned off \hideinitializer
-    kA2dReferenceAVCC = 0x01,    //!< Reference is AVCC pin, internal VREF turned off \hideinitializer
-    kA2dReference11V  = 0x02,    //!< Reference is internal 1.1V VREF \hideinitializer
-    kA2dReference256V = 0x03     //!< Reference is internal 2.56V VREF (only available on ATmega2560) \hideinitializer
+enum A2DVoltageReference {
+  kA2dReferenceAREF = 0x00, //!< Reference is AREF pin, internal VREF turned off \hideinitializer
+  kA2dReferenceAVCC = 0x01, //!< Reference is AVCC pin, internal VREF turned off \hideinitializer
+  kA2dReference11V  = 0x02,  //!< Reference is internal 1.1V VREF \hideinitializer
+  kA2dReference256V = 0x03  //!< Reference is internal 2.56V VREF (only available on ATmega2560) \hideinitializer
 };
 
 #else
 
 enum A2DVoltageReference
 {
-    kA2dReferenceAREF = 0x00,    // 0x00 -> AREF pin, internal VREF turned off
-    kA2dReferenceAVCC = 0x01,    // 0x01 -> AVCC pin, internal VREF turned off
-    kA2dReference11V  = 0x03     // 0x03 -> Internal 1.1V VREF
+    kA2dReferenceAREF = 0x00, // 0x00 -> AREF pin, internal VREF turned off
+    kA2dReferenceAVCC = 0x01, // 0x01 -> AVCC pin, internal VREF turned off
+    kA2dReference11V = 0x03   // 0x03 -> Internal 1.1V VREF
 };
 
 #endif
-
 
 /*
     The following macro is not intended for end-user use; it is needed to support the pin naming
     macros in conjunction with the C/C++ preprocessor's re-scanning rules.
 */
 
-#define _readGpioPinAnalog( ddr, port, pin, nbr, adc, ocr, com, tccr )      readA2D( adc )
-
-
-
+#define _readGpioPinAnalog(ddr, port, pin, nbr, adc, ocr, com, tccr) readA2D(adc)
 
 /*!
  * \brief Read the analog value of the pin.
@@ -92,12 +83,9 @@ enum A2DVoltageReference
  * \hideinitializer
  */
 
-#define readGpioPinAnalog( pinName )                                        _readGpioPinAnalog( pinName )
+#define readGpioPinAnalog(pinName) _readGpioPinAnalog(pinName)
 
-
-int readA2D( int8_t channel );
-
-
+int readA2D(int8_t channel);
 
 /*!
  * \brief Read the analog value of the pin.
@@ -114,11 +102,9 @@ int readA2D( int8_t channel );
  * by calling initA2D().
  */
 
-inline uint16_t readGpioPinAnalogV( const GpioPinVariable& pinVar )
-{
-    return readA2D( pinVar.adcNbr() );
+inline uint16_t readGpioPinAnalogV(const GpioPinVariable &pinVar) {
+  return readA2D(pinVar.adcNbr());
 }
-
 
 /*!
  * \brief Initialize the analog-to-digital system.
@@ -132,9 +118,7 @@ inline uint16_t readGpioPinAnalogV( const GpioPinVariable& pinVar )
  * \note This function only works for CPU clocks running at either 8 MHz, 12 MHz, or 16 MHz.
  */
 
-void initA2D( uint8_t ref = kA2dReferenceAVCC );
-
-
+void initA2D(uint8_t ref = kA2dReferenceAVCC);
 
 /*!
  * \brief Turn off the analog-to-digital system.
@@ -142,7 +126,6 @@ void initA2D( uint8_t ref = kA2dReferenceAVCC );
  */
 
 void turnOffA2D();
-
 
 /*!
  * \brief Set the voltage reference for the analog-to-digital system.
@@ -154,9 +137,7 @@ void turnOffA2D();
  * one of the constants from enum A2DVoltageReference.
  */
 
-void setA2DVoltageReference( A2DVoltageReference ref );
-
-
+void setA2DVoltageReference(A2DVoltageReference ref);
 
 /*!
  * \brief Set the voltage reference for the analog-to-digital system to AREF.
@@ -164,10 +145,9 @@ void setA2DVoltageReference( A2DVoltageReference ref );
  * This is an inline synonym for setA2DVoltageReference( kA2dReferenceAREF )
  */
 
-inline void setA2DVoltageReferenceAREF()
-{ setA2DVoltageReference( kA2dReferenceAREF ); }
-
-
+inline void setA2DVoltageReferenceAREF() {
+  setA2DVoltageReference(kA2dReferenceAREF);
+}
 
 /*!
  * \brief Set the voltage reference for the analog-to-digital system to AREF.
@@ -175,10 +155,9 @@ inline void setA2DVoltageReferenceAREF()
  * This is an inline synonym for setA2DVoltageReference( kA2dReferenceAVCC )
  */
 
-inline void setA2DVoltageReferenceAVCC()
-{ setA2DVoltageReference( kA2dReferenceAVCC ); }
-
-
+inline void setA2DVoltageReferenceAVCC() {
+  setA2DVoltageReference(kA2dReferenceAVCC);
+}
 
 /*!
  * \brief Set the voltage reference for the analog-to-digital system to AREF.
@@ -186,12 +165,11 @@ inline void setA2DVoltageReferenceAVCC()
  * This is an inline synonym for setA2DVoltageReference( kA2dReference11V )
  */
 
-inline void setA2DVoltageReference11V()
-{ setA2DVoltageReference( kA2dReference11V ); }
-
+inline void setA2DVoltageReference11V() {
+  setA2DVoltageReference(kA2dReference11V);
+}
 
 #if defined(__AVR_ATmega2560__)
-
 
 /*!
  * \brief Set the voltage reference for the analog-to-digital system to AREF.
@@ -201,12 +179,11 @@ inline void setA2DVoltageReference11V()
  * \note this function is only available on ATmega2560 (not on the ATmega328).
  */
 
-inline void setA2DVoltageReference256V()
-{ setA2DVoltageReference( kA2dReference256V ); }
+inline void setA2DVoltageReference256V() {
+  setA2DVoltageReference(kA2dReference256V);
+}
 
 #endif
-
-
 
 /*!
  * \brief Read an analog voltage value.
@@ -223,6 +200,6 @@ inline void setA2DVoltageReference256V()
  * \hideinitializer
  */
 
-int readA2D( int8_t channel );
+int readA2D(int8_t channel);
 
 #endif

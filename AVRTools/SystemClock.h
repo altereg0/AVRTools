@@ -21,8 +21,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -37,18 +35,14 @@
  *
  */
 
-
-
 #ifndef SystemClock_h
 #define SystemClock_h
 
+typedef unsigned long millis_t;
 
-
-
-#define clockCyclesPerMicrosecond()         ( F_CPU / 1000000L )
-#define clockCyclesToMicroseconds( a )      ( (a) / clockCyclesPerMicrosecond() )
-#define microsecondsToClockCycles( a )      ( (a) * clockCyclesPerMicrosecond() )
-
+#define clockCyclesPerMicrosecond() (F_CPU / 1000000L)
+#define clockCyclesToMicroseconds(a) ((a) / clockCyclesPerMicrosecond())
+#define microsecondsToClockCycles(a) ((a)*clockCyclesPerMicrosecond())
 
 /*!
  * \brief This function initializes a system clock that tracks elapsed milliseconds.
@@ -64,7 +58,6 @@
 
 void initSystemClock();
 
-
 /*!
  * \brief Delay a certain number of microseconds.
  *
@@ -74,8 +67,7 @@ void initSystemClock();
  *
  */
 
-void delayMicroseconds( unsigned int us );
-
+void delayMicroseconds(unsigned int us);
 
 /*!
  * \brief Delay a certain number of milliseconds.
@@ -84,8 +76,7 @@ void delayMicroseconds( unsigned int us );
  *
  */
 
-void delayMilliseconds( unsigned long ms );
-
+void delayMilliseconds(millis_t ms);
 
 /*!
  * \brief Delay a certain number of milliseconds.
@@ -97,9 +88,7 @@ void delayMilliseconds( unsigned long ms );
  *
  */
 
-inline void delay( unsigned long ms )
-{ delayMilliseconds( ms ); }
-
+inline void delay(millis_t ms) { delayMilliseconds(ms); }
 
 /*!
  * \brief Return the number of elasped microseconds since the system clock was turned on.
@@ -112,7 +101,6 @@ inline void delay( unsigned long ms )
 
 unsigned long micros();
 
-
 /*!
  * \brief Return the number of elasped milliseconds since the system clock was turned on.
  *
@@ -120,8 +108,6 @@ unsigned long micros();
  *
  */
 
-unsigned long millis();
-
-
+millis_t millis();
 
 #endif

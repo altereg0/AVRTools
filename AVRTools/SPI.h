@@ -23,15 +23,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  * \file
  *
  * \brief This file provides an interface to %SPI subsystem available on the AVR ATMega328p (Arduino Uno)
  * and ATMega2560 (Arduino Mega) microcontrollers.
  */
-
-
 
 #ifndef SPI_h
 #define SPI_h
@@ -40,7 +37,6 @@
 #include <stddef.h>
 
 #include <avr/io.h>
-
 
 /*!
  * \brief This namespace bundles an interface to the %SPI hardware subsystem on the AVR ATMega328p (Arduino Uno)
@@ -106,20 +102,17 @@
  * \note This module implements %SPI master mode only.
  */
 
-namespace SPI
-{
+namespace SPI {
 
-    /*!
+/*!
      * \brief An enumeration that defines the byte order for multibyte %SPI transmissions.
      */
-    enum ByteOrder
-    {
-        kLsbFirst    = 0,   //!< Least significant byte first   \hideinitializer
-        kMsbFirst    = 1    //!< Most significant byte first    \hideinitializer
-    };
+enum ByteOrder {
+  kLsbFirst = 0, //!< Least significant byte first   \hideinitializer
+  kMsbFirst = 1  //!< Most significant byte first    \hideinitializer
+};
 
-
-    /*!
+/*!
      * \brief An enumeration that defines the modes available for %SPI transmissions.
      *
      * There are four modes controlling whether data is shifted in and out on the
@@ -127,16 +120,14 @@ namespace SPI
      * whether the clock is idle when high or low (called the polarity, CPOL).  The four
      * modes are simply the possible combinations of phase and polarity.
      */
-    enum SpiMode
-    {
-        kSpiMode0   = 0x00,   //!< Phase falling, idle low (CPHA = 0, CPOL = 0)     \hideinitializer
-        kSpiMode1   = 0x04,   //!< Phase rising, idle low (CPHA = 1, CPOL = 0)      \hideinitializer
-        kSpiMode2   = 0x08,   //!< Phase falling, idle high (CPHA = 0, CPOL = 1)    \hideinitializer
-        kSpiMode3   = 0x0C    //!< Phase rising, idle high (CPHA = 1, CPOL = 1)     \hideinitializer
-    };
+enum SpiMode {
+  kSpiMode0 = 0x00, //!< Phase falling, idle low (CPHA = 0, CPOL = 0)     \hideinitializer
+  kSpiMode1 = 0x04, //!< Phase rising, idle low (CPHA = 1, CPOL = 0)      \hideinitializer
+  kSpiMode2 = 0x08, //!< Phase falling, idle high (CPHA = 0, CPOL = 1)    \hideinitializer
+  kSpiMode3 = 0x0C  //!< Phase rising, idle high (CPHA = 1, CPOL = 1)     \hideinitializer
+};
 
-
-    /*!
+/*!
     * \brief A class that binds settings for configuring %SPI transmissions.
     *
     * The SPISettings object is used to configure the %SPI hardware. The three parameters are combined into
@@ -155,206 +146,157 @@ namespace SPI
     * the interface to align with the AVRTools %SPI implementation.
     */
 
-    class SPISettings
-    {
-    public:
+class SPISettings {
+public:
+  /*!
+       * \brief The constructor builds an SPISettings object out of three parameters
+       * describing the maximum transmission speed, the data order (most or least
+       * significant bit first), and the data mode (phase and polarity).  Note that bit
+       * order extends to byte order when passing multibyte integers.
+       *
+       * The code is designed to be exceptionally efficient and small if all three
+       * parameters are compile-time constants.
+       *
+       * \arg \c maxSpeed the maximum speed of transmission, in herz (Hz). For a %SPI
+       * chip rated up to 16 MHz, use 16000000.
+       * \arg \c bitOrder whether least significant or most significant bit is first.
+       * Pass either kMsbFirst or kLsbFirst.
+       * \arg \c dataMode sets the data mode (phase and polarity) for %SPI communications.
+       * Pass one of kSpiMode0, kSpiMode1, kSpiMode2, or kSpiMode3.
+       */
 
-        /*!
-         * \brief The constructor builds an SPISettings object out of three parameters
-         * describing the maximum transmission speed, the data order (most or least
-         * significant bit first), and the data mode (phase and polarity).  Note that bit
-         * order extends to byte order when passing multibyte integers.
-         *
-         * The code is designed to be exceptionally efficient and small if all three
-         * parameters are compile-time constants.
-         *
-         * \arg \c maxSpeed the maximum speed of transmission, in herz (Hz). For a %SPI
-         * chip rated up to 16 MHz, use 16000000.
-         * \arg \c bitOrder whether least significant or most significant bit is first.
-         * Pass either kMsbFirst or kLsbFirst.
-         * \arg \c dataMode sets the data mode (phase and polarity) for %SPI communications.
-         * Pass one of kSpiMode0, kSpiMode1, kSpiMode2, or kSpiMode3.
-         */
+  SPISettings(uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode) {
+    if (__builtin_constant_p(maxSpeed)) {
+      initAlwaysInline(maxSpeed, bitOrder, dataMode);
+    } else {
+      initMightInline(maxSpeed, bitOrder, dataMode);
+    }
+  }
 
-        SPISettings( uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode )
-        {
-            if ( __builtin_constant_p( maxSpeed ) )
-            {
-                initAlwaysInline( maxSpeed, bitOrder, dataMode );
-            }
-            else
-            {
-                initMightInline( maxSpeed, bitOrder, dataMode );
-            }
-        }
+  /*!
+       * \brief The constructor builds an SPISettings object with default settings
+       * corresponding to a maximum transmission speed of 8 MHz, most significant
+       * bit first, and kSpiMode0.
+       */
 
+  SPISettings() {
+    initAlwaysInline(8000000, kMsbFirst, kSpiMode0);
+  }
 
+  /*!
+       * \brief Return the appropriate configure value for the SPCR register.
+       *
+       * \returns a value to load in the SPCR register to configure the %SPI hardware.
+       */
 
-        /*!
-         * \brief The constructor builds an SPISettings object with default settings
-         * corresponding to a maximum transmission speed of 8 MHz, most significant
-         * bit first, and kSpiMode0.
-         */
+  uint8_t getSpcr() const {
+    return mSpcr;
+  }
 
-        SPISettings()
-        {
-            initAlwaysInline( 8000000, kMsbFirst, kSpiMode0 );
-        }
+  /*!
+       * \brief Return the appropriate configure value for the SPSR register.
+       *
+       * \returns a value to load in the SPSR register to configure the %SPI hardware.
+       */
 
+  uint8_t getSpsr() const {
+    return mSpsr;
+  }
 
-
-        /*!
-         * \brief Return the appropriate configure value for the SPCR register.
-         *
-         * \returns a value to load in the SPCR register to configure the %SPI hardware.
-         */
-
-        uint8_t getSpcr() const
-        {
-            return mSpcr;
-        }
-
-
-        /*!
-         * \brief Return the appropriate configure value for the SPSR register.
-         *
-         * \returns a value to load in the SPSR register to configure the %SPI hardware.
-         */
-
-        uint8_t getSpsr() const
-        {
-            return mSpsr;
-        }
-
-
-
-
-
-    private:
-
-
-        void initMightInline( uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode )
-        {
-            initAlwaysInline( maxSpeed, bitOrder, dataMode );
-        }
-
+private:
+  void initMightInline(uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode) {
+    initAlwaysInline(maxSpeed, bitOrder, dataMode);
+  }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
-        void initAlwaysInline( uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode )  __attribute__((__always_inline__))
-        {
-            /*
-            * The following are internal constants
-            */
-            const uint8_t kSpiClockDiv4     = 0x00;
-            const uint8_t kSpiClockDiv16    = 0x01;
-            const uint8_t kSpiClockDiv64    = 0x02;
-            const uint8_t kSpiClockDiv128   = 0x03;
-            const uint8_t kSpiClockDiv2     = 0x04;
-            const uint8_t kSpiClockDiv8     = 0x05;
-            const uint8_t kSpiClockDiv32    = 0x06;
+  void initAlwaysInline(uint32_t maxSpeed, uint8_t bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+    /*
+        * The following are internal constants
+        */
+    const uint8_t kSpiClockDiv4   = 0x00;
+    const uint8_t kSpiClockDiv16  = 0x01;
+    const uint8_t kSpiClockDiv64  = 0x02;
+    const uint8_t kSpiClockDiv128 = 0x03;
+    const uint8_t kSpiClockDiv2   = 0x04;
+    const uint8_t kSpiClockDiv8   = 0x05;
+    const uint8_t kSpiClockDiv32  = 0x06;
 
-            const uint8_t kSpiModeMask      = 0x0C;   // CPOL = bit 3, CPHA = bit 2 on SPCR
-            const uint8_t kSpiClockMask     = 0x03;   // SPR1 = bit 1, SPR0 = bit 0 on SPCR
-            const uint8_t kSpi2xClockMask   = 0x01;   // SPI2X = bit 0 on SPSR
+    const uint8_t kSpiModeMask    = 0x0C;    // CPOL = bit 3, CPHA = bit 2 on SPCR
+    const uint8_t kSpiClockMask   = 0x03;   // SPR1 = bit 1, SPR0 = bit 0 on SPCR
+    const uint8_t kSpi2xClockMask = 0x01; // SPI2X = bit 0 on SPSR
 
+    // Clock settings are defined as follows. Note that this shows SPI2X
+    // inverted, so the bits form increasing numbers. Also note that
+    // fosc/64 appears twice
+    // SPR1 SPR0 ~SPI2X Freq
+    //   0    0     0   fosc/2
+    //   0    0     1   fosc/4
+    //   0    1     0   fosc/8
+    //   0    1     1   fosc/16
+    //   1    0     0   fosc/32
+    //   1    0     1   fosc/64
+    //   1    1     0   fosc/64
+    //   1    1     1   fosc/128
 
-            // Clock settings are defined as follows. Note that this shows SPI2X
-            // inverted, so the bits form increasing numbers. Also note that
-            // fosc/64 appears twice
-            // SPR1 SPR0 ~SPI2X Freq
-            //   0    0     0   fosc/2
-            //   0    0     1   fosc/4
-            //   0    1     0   fosc/8
-            //   0    1     1   fosc/16
-            //   1    0     0   fosc/32
-            //   1    0     1   fosc/64
-            //   1    1     0   fosc/64
-            //   1    1     1   fosc/128
+    // We find the fastest clock that is less than or equal to the
+    // given clock rate. The clock divider that results in clock_setting
+    // is 2 ^^ (clock_div + 1). If nothing is slow enough, we'll use the
+    // slowest (128 == 2 ^^ 7, so clock_div = 6).
+    uint8_t clockDiv;
 
-            // We find the fastest clock that is less than or equal to the
-            // given clock rate. The clock divider that results in clock_setting
-            // is 2 ^^ (clock_div + 1). If nothing is slow enough, we'll use the
-            // slowest (128 == 2 ^^ 7, so clock_div = 6).
-            uint8_t clockDiv;
+    // When the clock is known at compile time, use this if-then-else
+    // cascade, which the compiler knows how to completely optimize
+    // away. When clock is not known, use a loop instead, which generates
+    // shorter code.
+    if (__builtin_constant_p(maxSpeed)) {
+      if (maxSpeed >= F_CPU / 2) {
+        clockDiv = 0;
+      } else if (maxSpeed >= F_CPU / 4) {
+        clockDiv = 1;
+      } else if (maxSpeed >= F_CPU / 8) {
+        clockDiv = 2;
+      } else if (maxSpeed >= F_CPU / 16) {
+        clockDiv = 3;
+      } else if (maxSpeed >= F_CPU / 32) {
+        clockDiv = 4;
+      } else if (maxSpeed >= F_CPU / 64) {
+        clockDiv = 5;
+      } else {
+        clockDiv = 6;
+      }
+    } else {
+      uint32_t clockSetting = F_CPU / 2;
+      clockDiv = 0;
+      while (clockDiv < 6 && maxSpeed < clockSetting) {
+        clockSetting /= 2;
+        clockDiv++;
+      }
+    }
 
-            // When the clock is known at compile time, use this if-then-else
-            // cascade, which the compiler knows how to completely optimize
-            // away. When clock is not known, use a loop instead, which generates
-            // shorter code.
-            if ( __builtin_constant_p( maxSpeed ) )
-            {
-                if ( maxSpeed >= F_CPU / 2 )
-                {
-                    clockDiv = 0;
-                }
-                else if ( maxSpeed >= F_CPU / 4 )
-                {
-                    clockDiv = 1;
-                }
-                else if ( maxSpeed >= F_CPU / 8 )
-                {
-                    clockDiv = 2;
-                }
-                else if ( maxSpeed >= F_CPU / 16 )
-                {
-                    clockDiv = 3;
-                }
-                else if ( maxSpeed >= F_CPU / 32 )
-                {
-                    clockDiv = 4;
-                }
-                else if ( maxSpeed >= F_CPU / 64 )
-                {
-                    clockDiv = 5;
-                }
-                else
-                {
-                    clockDiv = 6;
-                }
-            }
-            else
-            {
-                uint32_t clockSetting = F_CPU / 2;
-                clockDiv = 0;
-                while ( clockDiv < 6 && maxSpeed < clockSetting )
-                {
-                    clockSetting /= 2;
-                    clockDiv++;
-                }
-            }
+    // Compensate for the duplicate fosc/64
+    if (clockDiv == 6) {
+      clockDiv = 7;
+    }
 
-            // Compensate for the duplicate fosc/64
-            if ( clockDiv == 6 )
-            {
-                clockDiv = 7;
-            }
+    // Invert the SPI2X bit
+    clockDiv ^= 0x1;
 
-            // Invert the SPI2X bit
-            clockDiv ^= 0x1;
+    // Pack into the SPISettings class
+    mSpcr = _BV(SPE) | _BV(MSTR) | ((bitOrder == kLsbFirst) ? _BV(DORD) : 0) | (dataMode & kSpiModeMask)
+        | ((clockDiv >> 1) & kSpiClockMask);
 
-            // Pack into the SPISettings class
-            mSpcr = _BV(SPE)
-                    | _BV(MSTR)
-                    | ( (bitOrder == kLsbFirst) ? _BV(DORD) : 0 )
-                    | ( dataMode & kSpiModeMask )
-                    | ( (clockDiv >> 1) & kSpiClockMask );
-
-            mSpsr = clockDiv & kSpi2xClockMask;
-        }
+    mSpsr = clockDiv & kSpi2xClockMask;
+  }
 
 #pragma GCC diagnostic pop
 
+  uint8_t mSpcr;
+  uint8_t mSpsr;
+};
 
-        uint8_t mSpcr;
-        uint8_t mSpsr;
-    };
-
-
-
-
-    /*!
+/*!
      * \brief Enable the %SPI subsystem for transmission.
      *
      * This call enables the %SPI hardware and configures the MOSI, MISO, CLK, and SS pins, making them
@@ -368,11 +310,9 @@ namespace SPI
      * operations as long as it remains in output mode).
      */
 
-    void enable();
+void enable();
 
-
-
-    /*!
+/*!
      * \brief Disable the %SPI subsystem, precluding further transmissions.
      *
      * This call disables the %SPI hardware, releasing the MOSI, MISO, CLK, and SS pins for other uses.
@@ -381,10 +321,9 @@ namespace SPI
      * the %SPI subsystem by again calling enable().
      */
 
-    void disable();
+void disable();
 
-
-    /*!
+/*!
      * \brief Set the configuration of %SPI subsystem to match the needs of the system you are going to communicate
      * with.
      *
@@ -423,14 +362,12 @@ namespace SPI
      *
      */
 
-    inline void configure( SPISettings settings )
-    {
-        SPCR = settings.getSpcr();
-        SPSR = settings.getSpsr();
-    }
+inline void configure(SPISettings settings) {
+  SPCR = settings.getSpcr();
+  SPSR = settings.getSpsr();
+}
 
-
-    /*!
+/*!
      * \brief Transmit a single byte using the %SPI subsystem.
      *
      * \arg \c data the byte to be transmitted.
@@ -438,23 +375,20 @@ namespace SPI
      * \returns the byte received from the %SPI subsystem.
      */
 
-    inline uint8_t transmit( uint8_t data )
-    {
-        SPDR = data;
-        /*
-        * The following NOP introduces a small delay that can prevent the wait
-        * loop from iterating when running at the maximum speed. This gives
-        * about 10% more speed, even if it seems counter-intuitive. At lower
-        * speeds it is unnoticed.
-        */
-        asm volatile( "nop" );
-        while ( !( SPSR & _BV(SPIF) ) )
-            ; // wait
-        return SPDR;
-    }
+inline uint8_t transmit(uint8_t data) {
+  SPDR = data;
+  /*
+      * The following NOP introduces a small delay that can prevent the wait
+      * loop from iterating when running at the maximum speed. This gives
+      * about 10% more speed, even if it seems counter-intuitive. At lower
+      * speeds it is unnoticed.
+      */
+  asm volatile("nop");
+  while (!(SPSR & _BV(SPIF))); // wait
+  return SPDR;
+}
 
-
-    /*!
+/*!
      * \brief Transmit a word-sized integer (two bytes) using the %SPI subsystem.  The order in which
      * the bytes are sent is determined by the bit order configuration that has been set.
      *
@@ -464,54 +398,43 @@ namespace SPI
      * determined by the bit order configuration that has been set.
      */
 
-    inline uint16_t transmit16( uint16_t data )
-    {
-        union
-        {
-            uint16_t val;
-            struct
-            {
-                uint8_t lsb;
-                uint8_t msb;
+inline uint16_t transmit16(uint16_t data) {
+  union {
+    uint16_t val;
+    struct _anon_type {
+      uint8_t lsb;
+      uint8_t msb;
 
-            };
-        } in, out;
+    } _anon;
+  } in, out;
 
-        in.val = data;
+  in.val = data;
 
-        if ( SPCR & _BV(DORD) )
-        {
-            SPDR = in.lsb;
-            asm volatile( "nop" );              // See transmit( uint8_t ) function
-            while ( !( SPSR & _BV(SPIF) ) )
-                ;
-            out.lsb = SPDR;
+  if (SPCR & _BV(DORD)) {
+    SPDR = in._anon.lsb;
+    asm volatile("nop"); // See transmit( uint8_t ) function
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.lsb = SPDR;
 
-            SPDR = in.msb;
-            asm volatile( "nop" );
-            while ( !( SPSR & _BV(SPIF) ) )
-                ;
-            out.msb = SPDR;
-        }
-        else
-        {
-            SPDR = in.msb;
-            asm volatile( "nop" );                // See transmit( uint8_t ) function
-            while ( !( SPSR & _BV(SPIF) ) )
-                ;
-            out.msb = SPDR;
-            SPDR = in.lsb;
-            asm volatile( "nop" );
-            while ( !( SPSR & _BV(SPIF) ) )
-                ;
-            out.lsb = SPDR;
-        }
+    SPDR = in._anon.msb;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.msb = SPDR;
+  } else {
+    SPDR = in._anon.msb;
+    asm volatile("nop"); // See transmit( uint8_t ) function
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.msb = SPDR;
+    SPDR = in._anon.lsb;
+    asm volatile("nop");
+    while (!(SPSR & _BV(SPIF)));
+    out._anon.lsb = SPDR;
+  }
 
-        return out.val;
-    }
+  return out.val;
+}
 
-
-    /*!
+/*!
      * \brief Transmit a long-word-sized integer (four bytes) using the %SPI subsystem.  The order
      * in which the bytes are sent is determined by the bit order configuration that has been set.
      *
@@ -521,11 +444,9 @@ namespace SPI
      * order determined by the bit order configuration that has been set.
      */
 
-    uint32_t transmit32( uint32_t data );
+uint32_t transmit32(uint32_t data);
 
-
-
-    /*!
+/*!
      * \brief Transmit an array of bytes using the %SPI subsystem.  The bytes are transmitted
      * in array order.
      *
@@ -536,31 +457,24 @@ namespace SPI
      * the data originally in the buffer.
      */
 
-    inline void transmit( uint8_t* buffer, size_t count )
-    {
-        if ( count )
-        {
-            uint8_t* p = buffer;
-            SPDR = *p;
+inline void transmit(uint8_t *buffer, size_t count) {
+  if (count) {
+    uint8_t *p = buffer;
+    SPDR       = *p;
 
-            while ( --count > 0 )
-            {
-                uint8_t out = *(p + 1);
-                while ( !( SPSR & _BV(SPIF) ) )
-                    ;
-                uint8_t in = SPDR;
-                SPDR = out;
-                *p++ = in;
-            }
-
-            while ( !(SPSR & _BV(SPIF) ) )
-                ;
-            *p = SPDR;
-        }
+    while (--count > 0) {
+      uint8_t out = *(p + 1);
+      while (!(SPSR & _BV(SPIF)));
+      uint8_t in = SPDR;
+      SPDR = out;
+      *p++ = in;
     }
 
+    while (!(SPSR & _BV(SPIF)));
+    *p = SPDR;
+  }
+}
 
-}   // End namespace
+} // namespace SPI
 
 #endif
-

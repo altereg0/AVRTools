@@ -20,8 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -42,16 +40,10 @@
  *
  */
 
-
-
 #ifndef USART3Minimal_h
 #define USART3Minimal_h
 
-
-
 #if defined(__AVR_ATmega2560__)
-
-
 
 /*!
  * \brief Initialize USART3 for serial receive and transmit.
@@ -67,8 +59,7 @@
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void initUSART3( unsigned long baudRate );
-
+void initUSART3(unsigned long baudRate);
 
 /*!
  * \brief Transmit a single byte on USART3.
@@ -82,8 +73,7 @@ void initUSART3( unsigned long baudRate );
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void transmitUSART3( unsigned char data );
-
+void transmitUSART3(unsigned char data);
 
 /*!
  * \brief Transmit a null-terminated string on USART3.
@@ -97,8 +87,7 @@ void transmitUSART3( unsigned char data );
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void transmitUSART3( const char* data );
-
+void transmitUSART3(const char *data);
 
 /*!
  * \brief Receive a byte on USART3.
@@ -114,7 +103,6 @@ void transmitUSART3( const char* data );
 
 unsigned char receiveUSART3();
 
-
 /*!
  * \brief Release USART3, making pins 0 and 1 again available for non-USART use.
  *
@@ -127,7 +115,5 @@ unsigned char receiveUSART3();
 void releaseUSART3();
 
 #endif
-
-
 
 #endif

@@ -21,8 +21,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -43,12 +41,8 @@
  *
  */
 
-
-
 #ifndef USART0Minimal_h
 #define USART0Minimal_h
-
-
 
 /*!
  * \brief Initialize %USART0 for serial receive and transmit.
@@ -63,8 +57,7 @@
  * (although other values below can be specified).
  */
 
-void initUSART0( unsigned long baudRate );
-
+void initUSART0(unsigned long baudRate);
 
 /*!
  * \brief Transmit a single byte on %USART0.
@@ -76,8 +69,7 @@ void initUSART0( unsigned long baudRate );
  * \arg \c data the byte to be transmitted.
  */
 
-void transmitUSART0( unsigned char data );
-
+void transmitUSART0(unsigned char data);
 
 /*!
  * \brief Transmit a null-terminated string on %USART0.
@@ -89,8 +81,7 @@ void transmitUSART0( unsigned char data );
  * \arg \c data the null-terminated string to be transmitted.
  */
 
-void transmitUSART0( const char* data );
-
+void transmitUSART0(const char *data);
 
 /*!
  * \brief Receive a byte on %USART0.
@@ -104,7 +95,6 @@ void transmitUSART0( const char* data );
 
 unsigned char receiveUSART0();
 
-
 /*!
  * \brief Release %USART0, making pins 0 and 1 again available for non-USART use.
  *
@@ -113,8 +103,5 @@ unsigned char receiveUSART0();
  */
 
 void releaseUSART0();
-
-
-
 
 #endif

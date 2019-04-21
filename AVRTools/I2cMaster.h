@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  * \file
  *
@@ -61,39 +60,28 @@
  *
  */
 
-
-
-
-
 #ifndef I2cMaster_h
 #define I2cMaster_h
-
 
 #ifdef I2cSlave_h
 #error "You cannot use both I2cMaster and I2cSlave in the same application"
 #endif
-
 
 #include <stdint.h>
 #include <stdlib.h>
 
 #include <util/atomic.h>
 
-
-#if defined( DEBUG_I2cMasterBuffer ) || defined( DEBUG_I2cMasterDiary )
+#if defined(DEBUG_I2cMasterBuffer) || defined(DEBUG_I2cMasterDiary)
 #include "USART0.h"
 #endif
 
-
-
-
-
 #ifndef I2C_MASTER_MAX_TX_MSG_LEN
-#define I2C_MASTER_MAX_TX_MSG_LEN       24
+#define I2C_MASTER_MAX_TX_MSG_LEN 24
 #endif
 
 #ifndef I2C_MASTER_MAX_TX_MSG_NBR
-#define I2C_MASTER_MAX_TX_MSG_NBR       3
+#define I2C_MASTER_MAX_TX_MSG_NBR 3
 #endif
 
 #if I2C_MASTER_MAX_TX_MSG_LEN > 255
@@ -103,10 +91,6 @@
 #if I2C_MASTER_MAX_TX_MSG_NBR > 255
 #error "I2C_MASTER_MAX_TX_MSG_NBR exceeds size of a uint8_t"
 #endif
-
-
-
-
 
 /*!
  * \brief This namespace bundles the I2C-protocol-based interface to the TWI hardware.  It provides logical cohesion
@@ -139,63 +123,51 @@
  * the Master wants to read data from.  For this reason all operations (both read and write) utilize the transmit buffer.
  */
 
-namespace I2cMaster
-{
+namespace I2cMaster {
 
-    /*!
+/*!
     * \brief This enum lists I2C bus speed configurations.
     *
     * \hideinitializer
     */
-    enum I2cBusSpeed
-    {
-        kI2cBusSlow                 = 0,                    //!< I2C slow (standard) mode: 100 KHz  \hideinitializer
-        kI2cBusFast                 = 1                     //!< I2C fast mode: 400 KHz  \hideinitializer
-    };
+enum I2cBusSpeed {
+  kI2cBusSlow = 0, //!< I2C slow (standard) mode: 100 KHz  \hideinitializer
+  kI2cBusFast = 1  //!< I2C fast mode: 400 KHz  \hideinitializer
+};
 
-
-    /*!
+/*!
     * \brief This enum lists I2C status codes reported by the various transmit functions.
     */
-    enum I2cStatusCodes
-    {
-        kI2cCompletedOk                    = 0x00,          //!< I2C communications completed on this message with no error.
-        kI2cError                          = 0x01,          //!< I2C communications had an error on this message.
-        kI2cNotStarted                     = 0x02,          //!< I2C communications not started on this message.
-        kI2cInProgress                     = 0x04           //!< I2C communications on this message still in progress.
-    };
+enum I2cStatusCodes {
+  kI2cCompletedOk = 0x00, //!< I2C communications completed on this message with no error.
+  kI2cError       = 0x01,       //!< I2C communications had an error on this message.
+  kI2cNotStarted  = 0x02,  //!< I2C communications not started on this message.
+  kI2cInProgress  = 0x04   //!< I2C communications on this message still in progress.
+};
 
-
-    /*!
+/*!
     * \brief This enum lists I2C errors codes that may occur when you try to write a message.
     */
-    enum I2cSendErrorCodes
-    {
-        kI2cNoError                 = 0,                    //!< No error
-        kI2cErrTxBufferFull         = 1,                    //!< The transmit buffer is full (try again later)
-        kI2cErrMsgTooLong           = 2,                    //!< The message is too long for the transmit buffer
-        kI2cErrNullStatusPtr        = 3,                    //!< The pointer to the status variable is null (need to provide a valid pointer)
-        kI2cErrWriteWithoutData     = 4,                    //!< No data provided to send
-        kI2cErrReadWithoutStorage   = 5                     //!< Performing a write+read, but no buffer provided to store the "read" data
-    };
+enum I2cSendErrorCodes {
+  kI2cNoError               = 0,              //!< No error
+  kI2cErrTxBufferFull       = 1,      //!< The transmit buffer is full (try again later)
+  kI2cErrMsgTooLong         = 2,        //!< The message is too long for the transmit buffer
+  kI2cErrNullStatusPtr      = 3,     //!< The pointer to the status variable is null (need to provide a valid pointer)
+  kI2cErrWriteWithoutData   = 4,  //!< No data provided to send
+  kI2cErrReadWithoutStorage = 5 //!< Performing a write+read, but no buffer provided to store the "read" data
+};
 
-
-    /*!
+/*!
     * \brief This enum lists the options for controlling the built-in  pullups in the TWI hardware.
     *
     * \hideinitializer
     */
-    enum I2cPullups
-    {
-        kPullupsOff                 = 0,                    //!< Disable the built-in TWI hardware pullups   \hideinitializer
-        kPullupsOn                  = 1                     //!< Enable the built-in TWI hardware pullups    \hideinitializer
-    };
+enum I2cPullups {
+  kPullupsOff = 0, //!< Disable the built-in TWI hardware pullups   \hideinitializer
+  kPullupsOn  = 1   //!< Enable the built-in TWI hardware pullups    \hideinitializer
+};
 
-
-
-
-
-    /*!
+/*!
      * \brief Configures the TWI hardware for I2C communications in Master mode.  You must call this function before conducting any
      * I2C communications using the functions in this module.
      *
@@ -204,18 +176,16 @@ namespace I2cMaster
      * \arg \c speed the speed mode for the I2C protocol.  The options are slow (100 KHz) or fast (400 KHz); the
      * default is fast (kI2cBusFast).
      */
-    void start( uint8_t speed = kI2cBusFast );
+void start(uint8_t speed = kI2cBusFast);
 
-
-    /*!
+/*!
      * \brief Terminates the I2C communications using the TWI hardware, and disables the TWI interrupts.
      *
      * After calling this function, you need to call start() again if you want to resume I2C communications.
      */
-    void stop();
+void stop();
 
-
-    /*!
+/*!
      * \brief Sets the state of the internal pullups that are part of the TWI hardware.
      *
      * start() automatically enables the internal pullups.  You only need to call this function
@@ -223,24 +193,19 @@ namespace I2cMaster
      *
      * \arg \c set the desired state of the built-in internal pullup.  Defaults to enable (kPullupsOn).
      */
-    void pullups( uint8_t set = kPullupsOn );
+void pullups(uint8_t set = kPullupsOn);
 
-
-    /*!
+/*!
      * \brief Reports whether the TWI hardware is busy communicating (either transmitting or
      * receiving).
      *
      * \returns true if the TWI hardware is busy communicating; false if the TWI hardware is idle.
      */
-    bool busy();
+bool busy();
 
+// Asynchronous functions
 
-
-
-    // Asynchronous functions
-
-
-    /*!
+/*!
      * \brief Transmit a single register address (a one-byte message) asynchronously. This function queues the
      * message and returns immediately.  Eventual status of the transmitted message can be monitored via the
      * designated status variable (passed as a pointer to this function).
@@ -256,10 +221,9 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t writeAsync( uint8_t address, uint8_t registerAddress, volatile uint8_t* status );
+uint8_t writeAsync(uint8_t address, uint8_t registerAddress, volatile uint8_t *status);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding single byte of data asynchronously. This function queues the
      * message and returns immediately.  Eventual status of the transmitted message can be monitored via the
      * designated status variable (passed as a pointer to this function).
@@ -276,10 +240,9 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t writeAsync( uint8_t address, uint8_t registerAddress, uint8_t data, volatile uint8_t* status );
+uint8_t writeAsync(uint8_t address, uint8_t registerAddress, uint8_t data, volatile uint8_t *status);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding null-terminated string of data asynchronously.
      * This function queues the message and returns immediately.  Eventual status of the transmitted message can
      * be monitored via the designated status variable (passed as a pointer to this function).
@@ -297,10 +260,9 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t writeAsync( uint8_t address, uint8_t registerAddress, const char* data, volatile uint8_t* status );
+uint8_t writeAsync(uint8_t address, uint8_t registerAddress, const char *data, volatile uint8_t *status);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding buffer of data asynchronously.
      * This function queues the message and returns immediately.  Eventual status of the transmitted message
      * can be monitored via the designated status variable (passed as a pointer to this function).
@@ -319,12 +281,10 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t writeAsync( uint8_t address, uint8_t registerAddress, uint8_t* data, uint8_t numberBytes,
-                            volatile uint8_t* status );
+uint8_t writeAsync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes,
+                   volatile uint8_t *status);
 
-
-
-    /*!
+/*!
      * \brief Request to read data from a device and receive that data asynchronously.
      * This function queues the message and returns immediately.  Eventual status of the transmitted message
      * can be monitored via the designated status variable (passed as a pointer to this function).  When the status
@@ -344,11 +304,10 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t readAsync( uint8_t address, uint8_t numberBytes, volatile uint8_t* destination,
-                        volatile uint8_t* bytesRead, volatile uint8_t* status );
+uint8_t readAsync(uint8_t address, uint8_t numberBytes, volatile uint8_t *destination,
+                  volatile uint8_t *bytesRead, volatile uint8_t *status);
 
-
-    /*!
+/*!
      * \brief Request to read data from a specific register on a device and receive that data asynchronously.
      * This function queues the message and returns immediately.  Eventual status of the transmitted message
      * can be monitored via the designated status variable (passed as a pointer to this function).  When the status
@@ -371,16 +330,13 @@ namespace I2cMaster
      *
      * \returns error codes corresponding to I2cSendErrorCodes (0 means no error)
      */
-    uint8_t readAsync( uint8_t address, uint8_t registerAddress, uint8_t numberBytes,
-                        volatile uint8_t* destination, volatile uint8_t* bytesRead,
-                        volatile uint8_t* status );
+uint8_t readAsync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes,
+                  volatile uint8_t *destination, volatile uint8_t *bytesRead,
+                  volatile uint8_t *status);
 
+// Synchronous
 
-
-    // Synchronous
-
-
-    /*!
+/*!
      * \brief Transmit a single register address (a one-byte message) synchronously. This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
      *
@@ -391,10 +347,9 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int writeSync( uint8_t address, uint8_t registerAddress );
+int writeSync(uint8_t address, uint8_t registerAddress);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding single byte of data synchronously. This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
      *
@@ -406,10 +361,9 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int writeSync( uint8_t address, uint8_t registerAddress, uint8_t data );
+int writeSync(uint8_t address, uint8_t registerAddress, uint8_t data);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding null-terminated string of data synchronously.
      * This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
@@ -423,10 +377,9 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int writeSync( uint8_t address, uint8_t registerAddress, const char* data );
+int writeSync(uint8_t address, uint8_t registerAddress, const char *data);
 
-
-    /*!
+/*!
      * \brief Transmit a single register address and corresponding buffer of data synchronously.
      * This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
@@ -442,11 +395,9 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int writeSync( uint8_t address, uint8_t registerAddress, uint8_t* data, uint8_t numberBytes );
+int writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes);
 
-
-
-    /*!
+/*!
      * \brief Request to read data from a device and receive that data synchronously.
      * This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
@@ -459,10 +410,9 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int readSync( uint8_t address, uint8_t numberBytes, uint8_t* destination );
+int readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination);
 
-
-    /*!
+/*!
      * \brief Request to read data from a specific register on a device and receive that data synchronously.
      * This function blocks until
      * the communications exchange is complete or encounters an error. Error codes are returned (0 means no error).
@@ -478,24 +428,21 @@ namespace I2cMaster
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-    int readSync( uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t* destination );
+int readSync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t *destination);
 
-
-#if defined( DEBUG_I2cMasterBuffer ) || defined( DEBUG_I2cMasterDiary )
-    void setDebugSout( Serial0* s );
+#if defined(DEBUG_I2cMasterBuffer) || defined(DEBUG_I2cMasterDiary)
+void setDebugSout(Serial0 *s);
 #endif
 
 #ifdef DEBUG_I2cMasterBuffer
-    void dumpBufferContents();
+void dumpBufferContents();
 #endif
 
 #ifdef DEBUG_I2cMasterDiary
-    void clearDebugI2cDiary();
-    void dumpDebugI2cDiary();
+void clearDebugI2cDiary();
+void dumpDebugI2cDiary();
 #endif
 
-
-};
-
+} // namespace I2cMaster
 
 #endif

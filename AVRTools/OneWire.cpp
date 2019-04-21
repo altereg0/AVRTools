@@ -1,9 +1,36 @@
 #include "OneWire.h"
+#include "ArduinoPins.h"
+#include "GpioPinMacros.h"
+#include <stdio.h>
 
 #ifdef UART_AS_OneWire
-//#include <avr/interrupt.h>
 #include "USART1Minimal.h"
 #endif
+
+// поиск всех устройств на шине
+uint8_t search_ow_devices(uint8_t (&owDevicesIDs)[MAXDEVICES][8]) {
+  uint8_t i;
+  uint8_t id[OW_ROMCODE_SIZE];
+  uint8_t diff, sensors_count;
+
+  sensors_count = 0;
+
+  for (diff = OW_SEARCH_FIRST; diff != OW_LAST_DEVICE && sensors_count < MAXDEVICES;) {
+    ow_find_rom(&diff, &id[0]);
+
+    if (diff == OW_PRESENCE_ERR)
+      break;
+
+    if (diff == OW_DATA_ERR)
+      break;
+
+    for (i = 0; i < OW_ROMCODE_SIZE; i++)
+      owDevicesIDs[sensors_count][i] = id[i];
+
+    sensors_count++;
+  }
+  return sensors_count;
+}
 
 #ifndef UART_AS_OneWire
 void ow_set(uint8_t mode) {
@@ -42,37 +69,9 @@ uint8_t ow_identify(void) {
 #endif // _DEBUG
 }
 
-uint8_t ow_reset(void) {
-#ifdef UART_AS_OneWire
-  // UCSRB = (1 << RXEN) | (1 << TXEN);
-  //// 9600
-  // UBRRL = USART_BAUDRATE_9600;
-  // UBRRH = (USART_BAUDRATE_9600 >> 8);
-  // UCSRA &= ~(1 << U2X);
-  //
-  // while (CheckBit(UCSRA, RXC))
-  // UDR; //clear buffer
-  // cli();
-  // UDR = 0xF0;
-  // UCSRA = (1 << TXC);
-  // sei();
-  //// while(!CheckBit(UCSRA, TXC)) OthersTasks();
-  // while (!CheckBit(UCSRA, RXC))
-  // OthersTasks();
-  // if (UDR != 0xF0)
-  // return 1;
-  // return 0;
-  uint8_t c;
-  initUSART1(USART_BAUDRATE_9600);
-  // UCSR1A &= ~(1 << U2X1);
-  transmitUSART1(0xF0);
-  c = receiveUSART1();
-  // initUSART1(USART_BAUDRATE_115200);
-  if (c != 0xF0)
-    return 1;
-  return 0;
+#ifndef UART_AS_OneWire
 
-#else
+uint8_t ow_reset(void) {
   uint8_t status;
   ow_set(1);
   _delay_us(480);
@@ -83,81 +82,9 @@ uint8_t ow_reset(void) {
   _delay_us(420);
   // Return the value read from the presence pulse (0=OK, 1=WRONG)
   return !status;
-#endif
-  //	return 1 if found
-  //	return 0 if not found
-}
-
-void ow_write_bit(uint8_t bit) {
-#ifdef UART_AS_OneWire
-  //// 115200
-  // UBRRL = USART_BAUDRATE_115200;
-  // UBRRH = (USART_BAUDRATE_115200 >> 8);
-  // UCSRA |= (1 << U2X);
-  //
-  // uint8_t d = 0x00;
-  // while (CheckBit(UCSRA, RXC))
-  // UDR; //clear buffer
-  // if (bit)
-  // d = 0xFF;
-  // cli();
-  // UDR = d;
-  // UCSRA = (1 << TXC);
-  // sei();
-  // while (!CheckBit(UCSRA, TXC))
-  //;
-  // while (CheckBit(UCSRA, RXC))
-  // UDR; //clear buffer
-  uint8_t d = 0x00;
-  if (bit)
-    d = 0xFF;
-  initUSART1(115200);
-  // UCSR1A |= (1 << U2X1); // double speed ?
-  transmitUSART1(d);
-  // releaseUSART1();
-#else
-  // Pull line low for 1uS
-  ow_set(1);
-  _delay_us(1);
-  // If we want to write 1, release the line (if not will keep low)
-  if (bit)
-    ow_set(0);
-  // Wait for 60uS and release the line
-  _delay_us(60);
-  ow_set(0);
-#endif
 }
 
 uint8_t ow_read_bit(void) {
-#ifdef UART_AS_OneWire
-  //// 115200
-  // UBRRL = USART_BAUDRATE_115200;
-  // UBRRH = (USART_BAUDRATE_115200 >> 8);
-  // UCSRA |= (1 << U2X);
-  //
-  // uint8_t c;
-  // while (CheckBit(UCSRA, RXC))
-  // UDR; //clear buffer
-  // cli();
-  // UDR = 0xFF;
-  // UCSRA = (1 << TXC);
-  // sei();
-  // while (!CheckBit(UCSRA, TXC))
-  //;
-  // while (!CheckBit(UCSRA, RXC))
-  //;
-  // c = UDR;
-  // if (c > 0xFE)
-  // return 1;
-  // return 0;
-  uint8_t d;
-  initUSART1(USART_BAUDRATE_115200);
-  // UCSR1A |= (1 << U2X1); // double speed?
-  d = receiveUSART1();
-  if (d > 0xFE)
-    return 1;
-  return 0;
-#else
   uint8_t bit = 0;
   // Pull line low for 1uS
   ow_set(1);
@@ -171,55 +98,22 @@ uint8_t ow_read_bit(void) {
   // Wait for 45uS to end and return read value
   _delay_us(45);
   return bit;
-#endif
 }
 
-#ifdef UART_AS_OneWire
-uint8_t ow_write_byte(uint8_t b) {
-  //// 115200
-  // UBRRL = USART_BAUDRATE_115200;
-  // UBRRH = (USART_BAUDRATE_115200 >> 8);
-  // UCSRA |= (1 << U2X);
-  //
-  // do {
-  // uint8_t d = 0x00;
-  // if (byte & 1)
-  // d = 0xFF;
-  // cli();
-  // UDR = d;
-  // UCSRA = (1 << TXC);
-  // sei();
-  // OthersTasks();
-  // while (!CheckBit(UCSRA, RXC))
-  // OthersTasks();
-  // byte >>= 1;
-  // if (UDR > 0xFE)
-  // byte |= 128;
-  //} while (--i);
-  uint8_t i = 8;
-  initUSART1(USART_BAUDRATE_115200);
-  // UCSR1A |= (1 << U2X1); // double speed?
-  do {
-    uint8_t d = 0x00;
-    if (b & 1)
-      d = 0xFF;
-    transmitUSART1(d);
-    b >>= 1;
-    if (receiveUSART1() > 0xFE)
-      b |= 0x80;
-  } while (--i);
-  return b & 0xFF;
-}
-#else
-void ow_write_byte(uint8_t b) {
-  for (uint8_t p = 8; p; p--) {
-    ow_write_bit(b & 1);
-    b >>= 1;
-  }
+void ow_write_bit(uint8_t bit) {
+  // Pull line low for 1uS
+  ow_set(1);
+  _delay_us(1);
+  // If we want to write 1, release the line (if not will keep low)
+  if (bit)
+    ow_set(0);
+  // Wait for 60uS and release the line
+  _delay_us(60);
+  ow_set(0);
 }
 
 uint8_t ow_read_byte(void) {
-  uint8_t r = 0;
+  uint8_t      r = 0;
   for (uint8_t p = 8; p; p--) {
     r >>= 1;
     if (ow_read_bit())
@@ -227,6 +121,14 @@ uint8_t ow_read_byte(void) {
   }
   return r;
 }
+
+void ow_write_byte(uint8_t b) {
+  for (uint8_t p = 8; p; p--) {
+    ow_write_bit(b & 1);
+    b >>= 1;
+  }
+}
+
 #endif
 
 uint8_t ow_search_rom(uint8_t diff, uint8_t *id) {
@@ -243,14 +145,18 @@ uint8_t ow_search_rom(uint8_t diff, uint8_t *id) {
   do {
     j = 8; // 8 bits
     do {
-      b = ow_read_bit();      // read bit
-      if (ow_read_bit()) {    // read complement bit
-        if (b)                // 11
+      b = ow_read_bit();   // read bit
+      if (ow_read_bit()) { // read complement bit
+        if (b)             // 11
+        {
+          printf("@DATA ERROR\r\n");
+
           return OW_DATA_ERR; // data error
+        }
       } else {
         if (!b) { // 00 = 2 devices
           if (diff > i || ((*id & 1) && diff != i)) {
-            b = 1;         // now 1
+            b         = 1;         // now 1
             next_diff = i; // next pass 0
           }
         }
@@ -296,3 +202,68 @@ uint8_t ow_match_rom(uint8_t *rom) {
   }
   return 1;
 }
+
+#ifdef UART_AS_OneWire
+
+uint8_t ow_reset(void) {
+  /*
+  Transmitting an 0xF0 from the UART forms a proper Reset pulse. The receive
+  value depends on whether one or more 1-Wire slave devices are present, their
+  internal timing of each slave device present, and the UART's detection timing
+  within each bit window. If no device is present, the receive value will equal
+  the transmit value. Otherwise the receive value can vary. A single slave
+  device running at minimum internal timing will change the response to 0xE0. A
+  single slave running at maximum internal timing will change the response to
+  0x90
+  */
+  uint8_t c;
+  initUSART1(USART_BAUDRATE_9600);
+  // UCSR1A &= ~(1 << U2X1);
+  transmitUSART1(0xF0);
+  c = receiveUSART1();
+  // initUSART1(USART_BAUDRATE_115200);
+  if (c != 0xF0)
+    return 1;
+  return 0;
+}
+
+uint8_t ow_read_bit(void) {
+  uint8_t d;
+  initUSART1(USART_BAUDRATE_115200);
+  // UCSR1A |= (1 << U2X1); // double speed?
+  transmitUSART1(0xFF);
+  d = receiveUSART1();
+  // if (d > 0xFE)
+  // return 1;
+  // return 0;
+  return (d & 0x01);
+}
+
+void ow_write_bit(uint8_t bit) {
+  uint8_t d = 0x00;
+  if (bit)
+    d = 0xFF;
+  initUSART1(115200);
+  UCSR1A |= (1 << U2X1); // double speed ?
+  transmitUSART1(d);
+  // releaseUSART1();
+}
+
+uint8_t ow_write_byte(uint8_t b) {
+  uint8_t i = 8;
+  initUSART1(USART_BAUDRATE_115200);
+  // UCSR1A |= (1 << U2X1); // double speed?
+  do {
+    uint8_t d = 0x00;
+    if (b & 1)
+      d = 0xFF;
+    transmitUSART1(d);
+    b >>= 1;
+    if (receiveUSART1() > 0xFE)
+      b |= 0x80;
+  } while (--i);
+  releaseUSART1();
+  return b & 0xFF;
+}
+
+#endif

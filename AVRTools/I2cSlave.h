@@ -18,10 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 /*!
  * \file
  *
@@ -54,16 +50,12 @@
  *
  */
 
-
-
 #ifndef I2cSlave_h
 #define I2cSlave_h
-
 
 #ifdef I2cMaster_h
 #error "You cannot use both I2cMaster and I2cSlave in the same application"
 #endif
-
 
 #include <stdint.h>
 
@@ -71,19 +63,13 @@
 #include "USART0.h"
 #endif
 
-
-
 #ifndef I2C_SLAVE_BUFFER_SIZE
-#define I2C_SLAVE_BUFFER_SIZE       32
+#define I2C_SLAVE_BUFFER_SIZE 32
 #endif
 
 #if I2C_SLAVE_BUFFER_SIZE > 255
 #error "I2C_SLAVE_BUFFER_SIZE exceeds size of a uint8_t"
 #endif
-
-
-
-
 
 /*!
  * \brief This namespace bundles the I2C-protocol-based interface to the TWI hardware.  It provides logical cohesion
@@ -104,11 +90,9 @@
  * receives a message and is also used to pass back any data that should be transmitted back to the Master.
  */
 
-namespace I2cSlave
-{
+namespace I2cSlave {
 
-
-    /*!
+/*!
      * \brief This function must be defined by the user.  It is called by the TWI interrupt function installed as
      * part of I2cSlave.cpp whenever it receives a message from the Master.  The user should implement this function
      * to respond to the data in the buffer, taking actions and as appropriate returning data to the buffer
@@ -135,60 +119,47 @@ namespace I2cSlave
      * be returned to the Master.
      */
 
-    uint8_t processI2cMessage( uint8_t* buffer, uint8_t len );
+uint8_t processI2cMessage(uint8_t *buffer, uint8_t len);
 
-
-
-
-    /*!
+/*!
     * \brief This enum lists I2C bus speed configurations.
     *
     * \hideinitializer
     */
-    enum I2cBusSpeed
-    {
-        kI2cBusSlow                 = 0,                    //!< I2C slow (standard) mode: 100 KHz  \hideinitializer
-        kI2cBusFast                 = 1                     //!< I2C fast mode: 400 KHz  \hideinitializer
-    };
+enum I2cBusSpeed {
+  kI2cBusSlow = 0, //!< I2C slow (standard) mode: 100 KHz  \hideinitializer
+  kI2cBusFast = 1  //!< I2C fast mode: 400 KHz  \hideinitializer
+};
 
-
-
-    /*!
+/*!
     * \brief This enum lists I2C status codes reported by the various transmit functions.
     */
-    enum I2cStatusCodes
-    {
-/*
-        kI2cCompletedOk                    = 0x00,
-        kI2cNotStarted                     = 0x01,
-        kI2cInProgress                     = 0x02,
-        kI2cError                          = 0x04,
-        kI2cBusError                       = 0x07
+enum I2cStatusCodes {
+  /*
+      kI2cCompletedOk                    = 0x00,
+      kI2cNotStarted                     = 0x01,
+      kI2cInProgress                     = 0x02,
+      kI2cError                          = 0x04,
+      kI2cBusError                       = 0x07
 */
-        kI2cCompletedOk                    = 0x00,          //!< I2C communications completed with no error.
-        kI2cError                          = 0x01,          //!< I2C communications encountered an error.
-        kI2cTxPartial                      = 0x02,          //!< I2C Master terminated transmission before all data were sent.
-        kI2cRxOverflow                     = 0x04,          //!< Recieved a message larger than can be held in the receive buffer.
-        kI2cInProgress                     = 0x06           //!< I2C communications on this message still in progress.
-    };
+      kI2cCompletedOk = 0x00, //!< I2C communications completed with no error.
+      kI2cError       = 0x01,       //!< I2C communications encountered an error.
+      kI2cTxPartial   = 0x02,   //!< I2C Master terminated transmission before all data were sent.
+      kI2cRxOverflow  = 0x04,  //!< Recieved a message larger than can be held in the receive buffer.
+      kI2cInProgress  = 0x06   //!< I2C communications on this message still in progress.
+};
 
-
-
-    /*!
+/*!
     * \brief This enum lists the options for controlling the built-in pullups in the TWI hardware.
     *
     * \hideinitializer
     */
-    enum I2cPullups
-    {
-        kPullupsOff                 = 0,                    //!< Disable the built-in TWI hardware pullups   \hideinitializer
-        kPullupsOn                  = 1                     //!< Enable the built-in TWI hardware pullups    \hideinitializer
-    };
+enum I2cPullups {
+  kPullupsOff = 0, //!< Disable the built-in TWI hardware pullups   \hideinitializer
+  kPullupsOn  = 1   //!< Enable the built-in TWI hardware pullups    \hideinitializer
+};
 
-
-
-
-    /*!
+/*!
      * \brief Configures the TWI hardware for I2C communications in Slave mode.  You must call this function before conducting any
      * I2C communications using the functions in this module.
      *
@@ -201,18 +172,16 @@ namespace I2cSlave
      * I2C general calls and only answer calls to his specific address.  The defaults is to not answer general calls.
      * and defaults to not answering I2C general calls.
      */
-    void start( uint8_t ownAddress, uint8_t speed = kI2cBusFast, bool answerGeneralCall = false );
+void start(uint8_t ownAddress, uint8_t speed = kI2cBusFast, bool answerGeneralCall = false);
 
-
-    /*!
+/*!
      * \brief Terminates the I2C communications using the TWI hardware, and disables the TWI interrupts.
      *
      * After calling this function, you need to call start() again if you want to resume I2C communications.
      */
-    void stop();
+void stop();
 
-
-    /*!
+/*!
      * \brief Sets the state of the internal pullups that are part of the TWI hardware.
      *
      * start() automatically enables the internal pullups.  You only need to call this function
@@ -220,29 +189,25 @@ namespace I2cSlave
      *
      * \arg \c set the desired state of the built-in internal pullup.  Defaults to enable (kPullupsOn).
      */
-    void pullups( uint8_t set = kPullupsOn );
+void pullups(uint8_t set = kPullupsOn);
 
-
-    /*!
+/*!
      * \brief Reports whether the TWI hardware is busy communicating (either transmitting or
      * receiving).
      *
      * \returns true if the TWI hardware is busy communicating; false if the TWI hardware is idle.
      */
-    bool busy();
-
+bool busy();
 
 #ifdef DEBUG_I2cSlaveDiary
 
-    void setDebugSout( Serial0* s );
+void setDebugSout(Serial0 *s);
 
-    void clearDebugI2cDiary();
-    void dumpDebugI2cDiary();
-
-#endif
-
-};
-
+void clearDebugI2cDiary();
+void dumpDebugI2cDiary();
 
 #endif
 
+} // namespace I2cSlave
+
+#endif

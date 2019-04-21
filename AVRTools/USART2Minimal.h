@@ -20,8 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /*!
  * \file
  *
@@ -42,16 +40,10 @@
  *
  */
 
-
-
 #ifndef USART2Minimal_h
 #define USART2Minimal_h
 
-
-
 #if defined(__AVR_ATmega2560__)
-
-
 
 /*!
  * \brief Initialize USART2 for serial receive and transmit.
@@ -67,8 +59,7 @@
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void initUSART2( unsigned long baudRate );
-
+void initUSART2(unsigned long baudRate);
 
 /*!
  * \brief Transmit a single byte on USART2.
@@ -82,8 +73,7 @@ void initUSART2( unsigned long baudRate );
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void transmitUSART2( unsigned char data );
-
+void transmitUSART2(unsigned char data);
 
 /*!
  * \brief Transmit a null-terminated string on USART2.
@@ -97,8 +87,7 @@ void transmitUSART2( unsigned char data );
  * \note This function is only available on Arduino Mega (ATmega2560).
  */
 
-void transmitUSART2( const char* data );
-
+void transmitUSART2(const char *data);
 
 /*!
  * \brief Receive a byte on USART2.
@@ -114,7 +103,6 @@ void transmitUSART2( const char* data );
 
 unsigned char receiveUSART2();
 
-
 /*!
  * \brief Release USART2, making pins 0 and 1 again available for non-USART use.
  *
@@ -126,10 +114,6 @@ unsigned char receiveUSART2();
 
 void releaseUSART2();
 
-
-
 #endif
-
-
 
 #endif

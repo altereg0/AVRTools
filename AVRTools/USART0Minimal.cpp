@@ -21,66 +21,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 #include "USART0Minimal.h"
 
 #include <stdint.h>
 
 #include <avr/io.h>
 
+void initUSART0(unsigned long baudRate) {
+  uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
+  //enable power
+  PRR0 &= !(1 << PRUSART0);
 
-
-
-
-void initUSART0( unsigned long baudRate )
-{
-    uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
-
-    UBRR0H = baudSetting >> 8;                      // shift the register right by 8 bits
-    UBRR0L = baudSetting;                           // set baud rate
-    UCSR0B |= ( 1 << TXEN0 ) | ( 1 << RXEN0 );      // enable receiver and transmitter
-    UCSR0C |= ( 1 << UCSZ00 ) | ( 1 << UCSZ01 );    // 8 bit data format
+  UBRR0H               = baudSetting >> 8;               // shift the register right by 8 bits
+  UBRR0L               = baudSetting;                    // set baud rate
+  UCSR0B |= (1 << TXEN0) | (1 << RXEN0);   // enable receiver and transmitter
+  UCSR0C |= (1 << UCSZ00) | (1 << UCSZ01); // 8 bit data format
 }
 
+void transmitUSART0(unsigned char data) {
+  while (!(UCSR0A & (1 << UDRE0))) // wait while register is free
+    ;
+  UDR0 = data; // load data in the register
+}
 
-void transmitUSART0( unsigned char data )
-{
-    while ( !( UCSR0A & (1<<UDRE0) ) )              // wait while register is free
+void transmitUSART0(const char *data) {
+  if (data) {
+    while (*data) {
+      while (!(UCSR0A & (1 << UDRE0))) // wait while register is free
         ;
-    UDR0 = data;                                    // load data in the register
-}
-
-
-void transmitUSART0( unsigned char* data )
-{
-    if ( data )
-    {
-        while ( *data )
-        {
-            while ( !( UCSR0A & (1<<UDRE0) ) )              // wait while register is free
-                ;
-            UDR0 = *data++;                                 // load data in the register
-        }
+      UDR0 = *data++; // load data in the register
     }
+  }
 }
 
-
-unsigned char receiveUSART0()
-{
-    while ( !UCSR0A & (1<<RXC0) )                     // wait while data is being received
-        ;
-    return UDR0;                                     // return 8-bit data
+unsigned char receiveUSART0() {
+  while (!(UCSR0A & (1 << RXC0))) // wait while data is being received
+    ;
+  return UDR0; // return 8-bit data
 }
 
-
-void releaseUSART0()
-{
-    UCSR0B = 0;
+void releaseUSART0() {
+  UCSR0B = 0;
+  //disable power
+  PRR0 |= (1 << PRUSART0);
 }
-
-
-
-

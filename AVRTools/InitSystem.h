@@ -21,7 +21,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  * \file
  *
@@ -31,12 +30,8 @@
  *
  */
 
-
-
-
 #ifndef InitSystem_h
 #define InitSystem_h
-
 
 /*!
  * \brief This function initializes the microcontroller by clearing any bootloader settings,
@@ -47,6 +42,5 @@
  */
 
 void initSystem();
-
 
 #endif

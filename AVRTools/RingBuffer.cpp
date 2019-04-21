@@ -18,103 +18,70 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
 #include "RingBuffer.h"
 
 #include <util/atomic.h>
 
-
-
-RingBuffer::RingBuffer( unsigned char *buffer, unsigned short size )
-: mBuffer( buffer ), mSize( size ), mLength( 0 ), mIndex( 0 )
-{
+RingBuffer::RingBuffer(unsigned char *buffer, unsigned short size)
+    : mBuffer(buffer), mSize(size), mLength(0), mIndex(0) {
 }
 
-
-int RingBuffer::pull()
-{
-    int element = -1;
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        if ( mLength )
-        {
-            element = mBuffer[ mIndex ];
-            mIndex++;
-            if ( mIndex >= mSize )
-            {
-                mIndex -= mSize;
-            }
-            --mLength;
-        }
+int RingBuffer::pull() {
+  int element = -1;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    if (mLength) {
+      element = mBuffer[mIndex];
+      mIndex++;
+      if (mIndex >= mSize) {
+        mIndex -= mSize;
+      }
+      --mLength;
     }
-    return element;
+  }
+  return element;
 }
 
-
-int RingBuffer::peek( unsigned short index )
-{
-    int element = -1;
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        if ( index < mLength )
-        {
-            element = mBuffer[ ( mIndex + index ) % mSize ];
-        }
+int RingBuffer::peek(unsigned short index) {
+  int element = -1;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    if (index < mLength) {
+      element = mBuffer[(mIndex + index) % mSize];
     }
-    return element;
+  }
+  return element;
 }
 
-
-bool RingBuffer::push( unsigned char element )
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        if ( mLength < mSize )
-        {
-            mBuffer[ ( mIndex + mLength ) % mSize ] = element;
-            ++mLength;
-            return 0;
-        }
+bool RingBuffer::push(unsigned char element) {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    if (mLength < mSize) {
+      mBuffer[(mIndex + mLength) % mSize] = element;
+      ++mLength;
+      return 0;
     }
-    // If buffer is full, ignore the push()
-    return 1;
+  }
+  // If buffer is full, ignore the push()
+  return 1;
 }
-
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-bool RingBuffer::isFull()
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        return ( mSize - mLength ) <= 0;
-    }
+bool RingBuffer::isFull() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    return (mSize - mLength) <= 0;
+  }
 }
 
-
-bool RingBuffer::isNotFull()
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        return ( mSize - mLength ) > 0;
-    }
+bool RingBuffer::isNotFull() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    return (mSize - mLength) > 0;
+  }
 }
 
 #pragma GCC diagnostic pop
 
-
-void RingBuffer::clear()
-{
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        mLength = 0;
-    }
+void RingBuffer::clear() {
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    mLength = 0;
+  }
 }
-
-
-
-
-

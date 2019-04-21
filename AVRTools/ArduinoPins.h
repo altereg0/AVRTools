@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  * \file
  *
@@ -37,12 +36,8 @@
  *
  */
 
-
-
-
 #ifndef ArduinoPins_h
 #define ArduinoPins_h
-
 
 #if defined(__AVR_ATmega328P__)
 
@@ -58,6 +53,4 @@
 
 #endif
 
-
 #endif
-

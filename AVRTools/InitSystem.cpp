@@ -18,10 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
-
 #include "InitSystem.h"
 
 #include <inttypes.h>
@@ -30,56 +26,50 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 
+void initSystem() {
+  // Clear out any left over settings from the bootloader
 
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    // The bootloader connects pins 0 and 1 to the USART; disconnect them
+    // so they are restored as normal digital i/o.
+    // Reconnect them explicitly if serial i/o is desired
+    UCSR0B = 0;
 
+    // Clear Timer0
+    TCCR0A = 0; // Clear all settings
+    TCCR0B = 0; // Clear all settings
+    TIMSK0 = 0; // Disable all interrupts
 
-void initSystem()
-{
-    // Clear out any left over settings from the bootloader
+    // Clear Timer1
+    TCCR1A = 0; // Clear all settings
+    TCCR1B = 0; // Clear all settings
+    TIMSK1 = 0; // Disable all interrupts
 
-    ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-    {
-        // The bootloader connects pins 0 and 1 to the USART; disconnect them
-        // so they are restored as normal digital i/o.
-        // Reconnect them explicitly if serial i/o is desired
-        UCSR0B = 0;
-
-        // Clear Timer0
-        TCCR0A = 0;     // Clear all settings
-        TCCR0B = 0;     // Clear all settings
-        TIMSK0 = 0;     // Disable all interrupts
-
-        // Clear Timer1
-        TCCR1A = 0;     // Clear all settings
-        TCCR1B = 0;     // Clear all settings
-        TIMSK1 = 0;     // Disable all interrupts
-
-        // Clear Timer2
-        TCCR2A = 0;     // Clear all settings
-        TCCR2B = 0;     // Clear all settings
-        TIMSK2 = 0;     // Disable all interrupts
+    // Clear Timer2
+    TCCR2A = 0; // Clear all settings
+    TCCR2B = 0; // Clear all settings
+    TIMSK2 = 0; // Disable all interrupts
 
 #if defined(__AVR_ATmega2560__)
 
-        // Clear Timer3
-        TCCR3A = 0;     // Clear all settings
-        TCCR3B = 0;     // Clear all settings
-        TIMSK3 = 0;     // Disable all interrupts
+    // Clear Timer3
+    TCCR3A = 0; // Clear all settings
+    TCCR3B = 0; // Clear all settings
+    TIMSK3 = 0; // Disable all interrupts
 
-        // Clear Timer4
-        TCCR4A = 0;     // Clear all settings
-        TCCR4B = 0;     // Clear all settings
-        TIMSK4 = 0;     // Disable all interrupts
+    // Clear Timer4
+    TCCR4A = 0; // Clear all settings
+    TCCR4B = 0; // Clear all settings
+    TIMSK4 = 0; // Disable all interrupts
 
-        // Clear Timer5
-        TCCR5A = 0;     // Clear all settings
-        TCCR5B = 0;     // Clear all settings
-        TIMSK5 = 0;     // Disable all interrupts
+    // Clear Timer5
+    TCCR5A = 0; // Clear all settings
+    TCCR5B = 0; // Clear all settings
+    TIMSK5 = 0; // Disable all interrupts
 
 #endif
-    }
+  }
 
-    // Enable interrupts
-    sei();
+  // Enable interrupts
+  sei();
 }
-

@@ -18,9 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
 /*!
  * \file
  *
@@ -31,13 +28,10 @@
  * buffers of whatever size is needed.
  */
 
-
 #ifndef RingBufferT_h
 #define RingBufferT_h
 
-
 #include <util/atomic.h>
-
 
 /*!
  * \brief a template-based ring buffer class that can store different kinds of objects in
@@ -57,196 +51,156 @@
  *
  */
 
-template< typename T, typename N, unsigned int SIZE > class RingBufferT
-{
+template<typename T, typename N, unsigned int SIZE>
+class RingBufferT {
 
 public:
+  /*!
+   * \brief Construct a ring buffer to store elements of type T indexed by
+   * integer type N, with size SIZE.  All of these are passed as template parameters.     *
+   */
+  RingBufferT()
+      : mSize(SIZE), mLength(0), mIndex(0) {
+  }
 
-    /*!
-     * \brief Construct a ring buffer to store elements of type T indexed by
-     * integer type N, with size SIZE.  All of these are passed as template parameters.     *
-     */
-    RingBufferT()
-        : mSize( SIZE ), mLength( 0 ), mIndex( 0 )
-        {}
-
-
-    /*!
-     * \brief Extract the next (first) element from the ring buffer.
-     *
-     * \note There is no
-     * general purpose safe value to return to indicate an empty buffer, so before
-     * calling pull() be sure to check the ring buffer is not empty.
-     *
-     * \returns the next element.
-     */
-    T pull()
-    {
-        T element = 0;
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            if ( mLength )
-            {
-                element = mBuffer[ mIndex ];
-                mIndex++;
-                if ( mIndex >= mSize )
-                {
-                    mIndex -= mSize;
-                }
-                --mLength;
-            }
+  /*!
+   * \brief Extract the next (first) element from the ring buffer.
+   *
+   * \note There is no
+   * general purpose safe value to return to indicate an empty buffer, so before
+   * calling pull() be sure to check the ring buffer is not empty.
+   *
+   * \returns the next element.
+   */
+  T pull() {
+    T element = 0;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      if (mLength) {
+        element = mBuffer[mIndex];
+        mIndex++;
+        if (mIndex >= mSize) {
+          mIndex -= mSize;
         }
-        return element;
+        --mLength;
+      }
     }
+    return element;
+  }
 
+  /*!
+   * \brief Examine an element in the ring buffer.
+   *
+   * \arg \c index the element to examine; 0 means the first (= next) element in the buffer.
+   * The default if the argument is omitted is to return the first element.
+   *
+   * \note There is no
+   * general purpose safe value to return to indicate an empty element, so before
+   * calling peek() be sure the element exists.
+   *
+   * \returns the next element.
+   */
+  T peek(N index = 0) {
+    T element;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      element = mBuffer[(mIndex + index) % mSize];
+    }
+    return element;
+  }
 
-    /*!
-     * \brief Examine an element in the ring buffer.
-     *
-     * \arg \c index the element to examine; 0 means the first (= next) element in the buffer.
-     * The default if the argument is omitted is to return the first element.
-     *
-     * \note There is no
-     * general purpose safe value to return to indicate an empty element, so before
-     * calling peek() be sure the element exists.
-     *
-     * \returns the next element.
-     */
-    T peek( N index = 0 )
-    {
-        T element;
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            element = mBuffer[ ( mIndex + index ) % mSize ];
+  /*!
+   * \brief Push an element into the ring buffer.  The element is appended to the back
+   * of the buffer.
+   *
+   * \arg \c element is the item to append to the ring buffer.
+   *
+   * \returns 0 (false) if it succeeds; 1 (true) if it fails because the buffer is full.
+   */
+  bool push(T element) {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      if (mLength < mSize) {
+        mBuffer[(mIndex + mLength) % mSize] = element;
+        ++mLength;
+        return 0;
+      }
+    }
+    // True = failure
+    return 1;
+  }
+
+  /*!
+   * \brief Determine if the buffer is empty .
+   *
+   * \returns true if the buffer is empty; false if not.
+   */
+  bool isEmpty() {
+    return !static_cast<bool>(mLength);
+  }
+
+  /*!
+   * \brief Determine if the buffer is not empty.
+   *
+   * \returns true if the buffer is not empty; false if it is empty.
+   */
+  bool isNotEmpty() {
+    return static_cast<bool>(mLength);
+  }
+
+  /*!
+   * \brief Determine if the buffer is full and cannot accept more bytes.
+   *
+   * \returns true if the buffer is full; false if not.
+   */
+  bool isFull() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      return (mSize - mLength) <= 0;
+    }
+  }
+
+  /*!
+   * \brief Determine if the buffer is not full and can accept more bytes.
+   *
+   * \returns true if the buffer is not full; false if it is full.
+   */
+  bool isNotFull() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      return (mSize - mLength) > 0;
+    }
+  }
+
+  /*!
+   * \brief discard a number of elements from the front of the ring buffer.
+   *
+   * \arg \c nbrElements the number of elements to discard.
+   */
+  void discardFromFront(N nbrElements) {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      if (nbrElements < mLength) {
+        mIndex += nbrElements;
+        if (mIndex >= mSize) {
+          mIndex -= mSize;
         }
-        return element;
+        mLength -= nbrElements;
+      } else {
+        // flush the whole buffer
+        mLength = 0;
+      }
     }
+  }
 
-
-    /*!
-     * \brief Push an element into the ring buffer.  The element is appended to the back
-     * of the buffer.
-     *
-     * \arg \c element is the item to append to the ring buffer.
-     *
-     * \returns 0 (false) if it succeeds; 1 (true) if it fails because the buffer is full.
-     */
-    bool push( T element )
-    {
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            if ( mLength < mSize )
-            {
-                mBuffer[ ( mIndex + mLength ) % mSize ] = element;
-                ++mLength;
-                return 0;
-            }
-        }
-        // True = failure
-        return 1;
+  /*!
+   * \brief Clear the ring buffer, leaving it empty.
+   */
+  void clear() {
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      mLength = 0;
     }
-
-
-    /*!
-     * \brief Determine if the buffer is empty .
-     *
-     * \returns true if the buffer is empty; false if not.
-     */
-    bool isEmpty()
-    {
-        return !static_cast<bool>( mLength );
-    }
-
-
-    /*!
-     * \brief Determine if the buffer is not empty.
-     *
-     * \returns true if the buffer is not empty; false if it is empty.
-     */
-    bool isNotEmpty()
-    {
-        return static_cast<bool>( mLength );
-    }
-
-
-    /*!
-     * \brief Determine if the buffer is full and cannot accept more bytes.
-     *
-     * \returns true if the buffer is full; false if not.
-     */
-    bool isFull()
-    {
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            return ( mSize - mLength ) <= 0;
-        }
-    }
-
-
-    /*!
-     * \brief Determine if the buffer is not full and can accept more bytes.
-     *
-     * \returns true if the buffer is not full; false if it is full.
-     */
-    bool isNotFull()
-    {
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            return ( mSize - mLength ) > 0;
-        }
-    }
-
-
-    /*!
-     * \brief discard a number of elements from the front of the ring buffer.
-     *
-     * \arg \c nbrElements the number of elements to discard.
-     */
-    void discardFromFront( N nbrElements )
-    {
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            if ( nbrElements < mLength )
-            {
-                mIndex += nbrElements;
-                if( mIndex >= mSize )
-                {
-                    mIndex -= mSize;
-                }
-                mLength -= nbrElements;
-            }
-            else
-            {
-                // flush the whole buffer
-                mLength = 0;
-            }
-        }
-    }
-
-
-    /*!
-     * \brief Clear the ring buffer, leaving it empty.
-     */
-    void clear()
-    {
-        ATOMIC_BLOCK( ATOMIC_RESTORESTATE )
-        {
-            mLength = 0;
-        }
-    }
-
-
+  }
 
 private:
-
-    T mBuffer[ SIZE ] ;
-    volatile N mSize;
-    volatile N mLength;
-    volatile N mIndex;
-
+  T          mBuffer[SIZE];
+  volatile N mSize;
+  volatile N mLength;
+  volatile N mIndex;
 };
 
-
 #endif
-
-

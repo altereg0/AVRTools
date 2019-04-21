@@ -18,7 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*!
  *  \file
  *
@@ -30,29 +29,19 @@
  *
  */
 
-
-
 #ifndef GpioPinMacros_h
 #define GpioPinMacros_h
 
-
 #include <avr/io.h>
-
-
 
 /*! \brief Constants for digital values representing LOW and HIGH
  *
  */
 
-enum
-{
-    kDigitalLow = 0,        //!< Value representing digital LOW
-    kDigitalHigh = 1        //!< Value representing digital HIGH
+enum {
+  kDigitalLow  = 0, //!< Value representing digital LOW
+  kDigitalHigh = 1 //!< Value representing digital HIGH
 };
-
-
-
-
 
 /*
 
@@ -62,64 +51,65 @@ enum
 
 */
 
+#define _GpioPin(ddr, port, pin, nbr) \
+    ddr, port, pin, nbr, -1, 0, -1, 0
 
-#define _GpioPin( ddr, port, pin, nbr )     \
-                                        ddr, port, pin, nbr, -1, 0, -1, 0
+#define _GpioPinAnalog(ddr, port, pin, nbr, adc) \
+    ddr, port, pin, nbr, adc, 0, -1, 0
 
-#define _GpioPinAnalog( ddr, port, pin, nbr, adc )  \
-                                        ddr, port, pin, nbr, adc, 0, -1, 0
+#define _GpioPinPwm(ddr, port, pin, nbr, ocr, com, tccr) \
+    ddr, port, pin, nbr, -1, ocr, com, tccr
 
-#define _GpioPinPwm( ddr, port, pin, nbr, ocr, com, tccr )       \
-                                     ddr, port, pin, nbr, -1, ocr, com, tccr
+#define _isGpioPinModeOutput(ddr, port, pin, nbr, adc, ocr, com, tccr) (ddr & (1 << nbr))
 
-#define _isGpioPinModeOutput( ddr, port, pin, nbr, adc, ocr, com, tccr )        ( ddr & (1<<nbr) )
+#define _isGpioPinModeInput(ddr, port, pin, nbr, adc, ocr, com, tccr) (!(ddr & (1 << nbr)))
 
-#define _isGpioPinModeInput( ddr, port, pin, nbr, adc, ocr, com, tccr )         (!( ddr & (1<<nbr) ))
+#define _setGpioPinModeOutput(ddr, port, pin, nbr, adc, ocr, com, tccr) ddr |= (1 << nbr)
 
-#define _setGpioPinModeOutput( ddr, port, pin, nbr, adc, ocr, com, tccr )       ddr |= (1<<nbr)
+#define _setGpioPinModeInput(ddr, port, pin, nbr, adc, ocr, com, tccr) ddr &= ~(1 << nbr), port &= ~(1 << nbr)
 
-#define _setGpioPinModeInput( ddr, port, pin, nbr, adc, ocr, com, tccr )        ddr &= ~(1<<nbr), port &= ~(1<<nbr)
+#define _setGpioPinModeInputPullup(ddr, port, pin, nbr, adc, ocr, com, tccr) ddr &= ~(1 << nbr), port |= (1 << nbr)
 
-#define _setGpioPinModeInputPullup( ddr, port, pin, nbr, adc, ocr, com, tccr )  ddr &= ~(1<<nbr), port |= (1<<nbr)
+#define _readGpioPinDigital(ddr, port, pin, nbr, adc, ocr, com, tccr) (pin & (1 << nbr))
 
-#define _readGpioPinDigital( ddr, port, pin, nbr, adc, ocr, com, tccr )         ( pin & (1<<nbr) )
+#define _writeGpioPinDigital(ddr, port, pin, nbr, adc, ocr, com, tccr, value) \
+    do                                                                        \
+    {                                                                         \
+        if (value)                                                            \
+            port |= (1 << nbr);                                               \
+        else                                                                  \
+            port &= ~(1 << nbr);                                              \
+    } while (0)
 
-#define _writeGpioPinDigital( ddr, port, pin, nbr, adc, ocr, com, tccr, value )     \
-                                        do { if (value) port |= (1<<nbr); else port &= ~(1<<nbr); } while ( 0 )
+#define _setGpioPinHigh(ddr, port, pin, nbr, adc, ocr, com, tccr) port |= (1 << nbr)
 
-#define _setGpioPinHigh( ddr, port, pin, nbr, adc, ocr, com, tccr )             port |= (1<<nbr)
+#define _setGpioPinLow(ddr, port, pin, nbr, adc, ocr, com, tccr) port &= ~(1 << nbr)
 
-#define _setGpioPinLow( ddr, port, pin, nbr, adc, ocr, com, tccr )              port &= ~(1<<nbr)
+#define _toggleGpioPin(ddr, port, pin, nbr, adc, ocr, com, tccr) pin = (1 << nbr)
 
-#define _toggleGpioPin( ddr, port, pin, nbr, adc, ocr, com, tccr )              pin = (1<<nbr)
+#define _getGpioPinDigital(ddr, port, pin, nbr, adc, ocr, com, tccr) ((pin & (1 << nbr)) != 0)
 
-#define _getGpioDDR( ddr, port, pin, nbr, adc, ocr, com, tccr )                 ddr
+#define _getGpioDDR(ddr, port, pin, nbr, adc, ocr, com, tccr) ddr
 
-#define _getGpioPORT( ddr, port, pin, nbr, adc, ocr, com, tccr )                port
+#define _getGpioPORT(ddr, port, pin, nbr, adc, ocr, com, tccr) port
 
-#define _getGpioPIN( ddr, port, pin, nbr, adc, ocr, com, tccr )                 pin
+#define _getGpioPIN(ddr, port, pin, nbr, adc, ocr, com, tccr) pin
 
-#define _getGpioMASK( ddr, port, pin, nbr, adc, ocr, com, tccr )                (1<<nbr)
+#define _getGpioMASK(ddr, port, pin, nbr, adc, ocr, com, tccr) (1 << nbr)
 
-#define _getGpioADC( ddr, port, pin, nbr, adc, ocr, com, tccr )                 adc
+#define _getGpioADC(ddr, port, pin, nbr, adc, ocr, com, tccr) adc
 
-#define _getGpioOCR( ddr, port, pin, nbr, adc, ocr, com, tccr )                 ocr
+#define _getGpioOCR(ddr, port, pin, nbr, adc, ocr, com, tccr) ocr
 
-#define _getGpioCOM( ddr, port, pin, nbr, adc, ocr, com, tccr )                 com
+#define _getGpioCOM(ddr, port, pin, nbr, adc, ocr, com, tccr) com
 
-#define _getGpioTCCR( ddr, port, pin, nbr, adc, ocr, com, tccr )                tccr
-
-
-
-
+#define _getGpioTCCR(ddr, port, pin, nbr, adc, ocr, com, tccr) tccr
 
 /*
 
     These macros are for end-users to name GPIO pins and manipulate GPIO pin name macros.
 
 */
-
-
 
 /*!
  * \brief Primary macro-function for defining a GPIO pin name
@@ -130,10 +120,8 @@ enum
  * \hideinitializer
  */
 
-#define GpioPin( portLtr, pinNbr )          \
-                                        _GpioPin( DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr )
-
-
+#define GpioPin(portLtr, pinNbr) \
+    _GpioPin(DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr)
 
 /*!
  * \brief Secondary macro-function for defining a GPIO pin name for GPIO pins that support analog conversion.
@@ -145,9 +133,8 @@ enum
  * \hideinitializer
  */
 
-#define GpioPinAnalog( portLtr, pinNbr, adcNbr )    \
-                                        _GpioPinAnalog( DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr, adcNbr )
-
+#define GpioPinAnalog(portLtr, pinNbr, adcNbr) \
+    _GpioPinAnalog(DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr, adcNbr)
 
 /*!
  * \brief Secondary macro-function for defining a GPIO pin name for GPIO pins that support PWM output.
@@ -160,10 +147,8 @@ enum
  * \hideinitializer
  */
 
-#define GpioPinPwm( portLtr, pinNbr, timer, chan )   \
-    _GpioPinPwm( DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr, OCR##timer##chan, COM##timer##chan##1, TCCR##timer##A )
-
-
+#define GpioPinPwm(portLtr, pinNbr, timer, chan) \
+    _GpioPinPwm(DDR##portLtr, PORT##portLtr, PIN##portLtr, pinNbr, OCR##timer##chan, COM##timer##chan##1, TCCR##timer##A)
 
 /*!
  * \brief Test if the mode of the GPIO pin is output (i.e., the corresponding DDRn bit is set).
@@ -173,9 +158,7 @@ enum
  * \hideinitializer
  */
 
-#define isGpioPinModeOutput( pinName )                                         _isGpioPinModeOutput( pinName )
-
-
+#define isGpioPinModeOutput(pinName) _isGpioPinModeOutput(pinName)
 
 /*!
  * \brief Test if the mode of the GPIO pin is input (i.e., the corresponding DDRn is clear).
@@ -185,9 +168,7 @@ enum
  * \hideinitializer
  */
 
-#define isGpioPinModeInput( pinName )                                          _isGpioPinModeInput( pinName )
-
-
+#define isGpioPinModeInput(pinName) _isGpioPinModeInput(pinName)
 
 /*!
  * \brief Set the mode of the GPIO pin to output (i.e., set the corresponding DDRn bit).
@@ -197,9 +178,7 @@ enum
  * \hideinitializer
  */
 
-#define setGpioPinModeOutput( pinName )                                         _setGpioPinModeOutput( pinName )
-
-
+#define setGpioPinModeOutput(pinName) _setGpioPinModeOutput(pinName)
 
 /*!
  * \brief Set the mode of the GPIO pin to input (i.e., clear the corresponding DDRn and PORTn bits).
@@ -209,9 +188,7 @@ enum
  * \hideinitializer
  */
 
-#define setGpioPinModeInput( pinName )                                          _setGpioPinModeInput( pinName )
-
-
+#define setGpioPinModeInput(pinName) _setGpioPinModeInput(pinName)
 
 /*!
  * \brief Set the mode of the GPIO pin to input with pullup (i.e., clear the corresponding DDRn bit and set the PORTn bit).
@@ -221,9 +198,7 @@ enum
  * \hideinitializer
  */
 
-#define setGpioPinModeInputPullup( pinName )                                    _setGpioPinModeInputPullup( pinName )
-
-
+#define setGpioPinModeInputPullup(pinName) _setGpioPinModeInputPullup(pinName)
 
 /*!
  * \brief Read the value of the GPIO pin (i.e., return the value of correspoinding the PINn bit).
@@ -235,8 +210,7 @@ enum
  * \hideinitializer
  */
 
-#define readGpioPinDigital( pinName )                                           _readGpioPinDigital( pinName )
-
+#define readGpioPinDigital(pinName) _readGpioPinDigital(pinName)
 
 /*!
  * \brief Write a value the GPIO pin (i.e., set or clear the correspoinding the PORTn bit).
@@ -247,9 +221,7 @@ enum
  * \hideinitializer
  */
 
-#define writeGpioPinDigital( pinName, val )                                     _writeGpioPinDigital( pinName, val )
-
-
+#define writeGpioPinDigital(pinName, val) _writeGpioPinDigital(pinName, val)
 
 /*!
  * \brief Write a 1 to the GPIO pin (i.e., set the correspoinding the PORTn bit).
@@ -259,9 +231,7 @@ enum
  * \hideinitializer
  */
 
-#define setGpioPinHigh( pinName )                                               _setGpioPinHigh( pinName )
-
-
+#define setGpioPinHigh(pinName) _setGpioPinHigh(pinName)
 
 /*!
  * \brief Write a 0 the GPIO pin (i.e., clear the correspoinding the PORTn bit).
@@ -271,9 +241,7 @@ enum
  * \hideinitializer
  */
 
-#define setGpioPinLow( pinName )                                                _setGpioPinLow( pinName )
-
-
+#define setGpioPinLow(pinName) _setGpioPinLow(pinName)
 
 /*!
  * \brief Write a 1 the PINx bit toggle corresponding PORTx bit.
@@ -283,9 +251,19 @@ enum
  * \hideinitializer
  */
 
-#define toggleGpioPin( pinName )                                                _toggleGpioPin( pinName )
+#define toggleGpioPin(pinName) _toggleGpioPin(pinName)
 
+/*!
+ * \brief Read the boolean value of the GPIO pin (i.e., return the boolean value of correspoinding the PINn bit).
+ *
+ * \arg \c pinName a GPIO pin name macro generated by either GpioPin(), GpioPinAnalog(), or GpioPinPwm().
+ *
+ * \returns 0 (false) or a 1 (true) value
+ *
+ * \hideinitializer
+ */
 
+#define getGpioPinDigital(pinName) _getGpioPinDigital(pinName)
 
 /*!
  * \brief Get the DDRn corresponding to this GPIO pin.
@@ -297,9 +275,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioDDR( pinName )                                                   _getGpioDDR( pinName )
-
-
+#define getGpioDDR(pinName) _getGpioDDR(pinName)
 
 /*!
  * \brief Get the PORTn corresponding to this GPIO pin.
@@ -311,9 +287,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioPORT( pinName )                                                  _getGpioPORT( pinName )
-
-
+#define getGpioPORT(pinName) _getGpioPORT(pinName)
 
 /*!
  * \brief Get the bit number corresponding to this GPIO pin.
@@ -325,9 +299,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioPIN( pinName )                                                   _getGpioPIN( pinName )
-
-
+#define getGpioPIN(pinName) _getGpioPIN(pinName)
 
 /*!
  * \brief Get the bit mask corresponding to this GPIO pin.
@@ -339,9 +311,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioMASK( pinName )                                                  _getGpioMASK( pinName )
-
-
+#define getGpioMASK(pinName) _getGpioMASK(pinName)
 
 /*!
  * \brief Get the ADC channel corresponding to this GPIO pin, assuming it is an ADC capable GPIO pin.
@@ -353,9 +323,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioADC( pinName )                                                   _getGpioADC( pinName )
-
-
+#define getGpioADC(pinName) _getGpioADC(pinName)
 
 /*!
  * \brief Get the OCR register corresponding to this GPIO pin, assuming it is a PWM capable GPIO pin.
@@ -367,9 +335,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioOCR( pinName )                                                   _getGpioOCR( pinName )
-
-
+#define getGpioOCR(pinName) _getGpioOCR(pinName)
 
 /*!
  * \brief Get the COM bit name corresponding to this GPIO pin, assuming it is a PWM capable GPIO pin.
@@ -381,9 +347,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioCOM( pinName )                                                   _getGpioCOM( pinName )
-
-
+#define getGpioCOM(pinName) _getGpioCOM(pinName)
 
 /*!
  * \brief Get the TCCR register corresponding to this GPIO pin, assuming it is a PWM capable GPIO pin.
@@ -395,10 +359,7 @@ enum
  * \hideinitializer
  */
 
-#define getGpioTCCR( pinName )                                                  _getGpioTCCR( pinName )
-
-
-
+#define getGpioTCCR(pinName) _getGpioTCCR(pinName)
 
 /******************************************/
 
@@ -407,9 +368,8 @@ enum
  *
  */
 
-
-typedef volatile uint8_t* Gpio8Ptr;
-typedef volatile uint16_t* Gpio16Ptr;
+typedef volatile uint8_t  *Gpio8Ptr;
+typedef volatile uint16_t *Gpio16Ptr;
 
 /*!
  * \brief This class defines a type that can encode a GPIO pin as a variable.  Read the section on
@@ -435,89 +395,87 @@ typedef volatile uint16_t* Gpio16Ptr;
  * except with a "V" appended.
  */
 
-class GpioPinVariable
-{
+class GpioPinVariable {
 public:
+  GpioPinVariable()
+      : mDdr(0), mPort(0), mPin(0), mOcr(0), mTccr(0), mCom(0xFF),
+        mNbr(0xFF), mAdc(0xFF) {
+  }
 
-    GpioPinVariable()
-    : mDdr( 0 ), mPort( 0 ), mPin( 0 ), mOcr( 0 ), mTccr( 0 ), mCom( 0xFF ),
-    mNbr( 0xFF ), mAdc( 0xFF )
-    {}
+  GpioPinVariable(Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr)
+      : mDdr(ddr), mPort(port), mPin(pin), mOcr(0), mTccr(0), mCom(0xFF),
+        mNbr(static_cast<uint8_t>(nbr)), mAdc(0xFF) {
+  }
 
-    GpioPinVariable( Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr )
-    : mDdr( ddr ), mPort( port ), mPin( pin ), mOcr( 0 ), mTccr( 0 ), mCom( 0xFF ),
-    mNbr( static_cast<uint8_t>(nbr) ), mAdc( 0xFF )
-    {}
+  GpioPinVariable(Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr, int8_t adc)
+      : mDdr(ddr), mPort(port), mPin(pin), mOcr(0), mTccr(0), mCom(0xFF),
+        mNbr(static_cast<uint8_t>(nbr)), mAdc(static_cast<uint8_t>(adc)) {
+  }
 
-    GpioPinVariable( Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr, int8_t adc )
-    : mDdr( ddr ), mPort( port ), mPin( pin ), mOcr( 0 ), mTccr( 0 ), mCom( 0xFF ),
-    mNbr( static_cast<uint8_t>(nbr) ), mAdc( static_cast<uint8_t>(adc) )
-    {}
+  GpioPinVariable(Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr, Gpio16Ptr ocr, Gpio8Ptr tccr, int8_t com)
+      : mDdr(ddr), mPort(port), mPin(pin), mOcr(ocr), mTccr(tccr), mCom(com),
+        mNbr(static_cast<uint8_t>(nbr)), mAdc(0xFF) {
+  }
 
-    GpioPinVariable( Gpio8Ptr ddr, Gpio8Ptr port, Gpio8Ptr pin, int8_t nbr, Gpio16Ptr ocr, Gpio8Ptr tccr, int8_t com )
-    : mDdr( ddr ), mPort( port ), mPin( pin ), mOcr( ocr ), mTccr( tccr ), mCom( com ),
-    mNbr( static_cast<uint8_t>(nbr) ), mAdc( 0xFF )
-    {}
+  /*! \brief Return a pointer to the DDR register. */
+  Gpio8Ptr ddr() const {
+    return mDdr;
+  }
 
-    /*! \brief Return a pointer to the DDR register. */
-    Gpio8Ptr ddr() const
-    { return mDdr; }
+  /*! \brief Return a pointer to the PORT register. */
+  Gpio8Ptr port() const {
+    return mPort;
+  }
 
-    /*! \brief Return a pointer to the PORT register. */
-    Gpio8Ptr port() const
-    { return mPort; }
+  /*! \brief Return a pointer to the PIN register. */
+  Gpio8Ptr pin() const {
+    return mPin;
+  }
 
-    /*! \brief Return a pointer to the PIN register. */
-    Gpio8Ptr pin() const
-    { return mPin; }
+  /*! \brief Return a pointer to the OCR register (PWM related). */
+  Gpio16Ptr ocr() const {
+    return mOcr;
+  }
 
-    /*! \brief Return a pointer to the OCR register (PWM related). */
-    Gpio16Ptr ocr() const
-    { return mOcr; }
+  /*! \brief Return a pointer to the TCCR register (PWM related). */
+  Gpio8Ptr tccr() const {
+    return mTccr;
+  }
 
-    /*! \brief Return a pointer to the TCCR register (PWM related). */
-    Gpio8Ptr tccr() const
-    { return mTccr; }
+  /*! \brief Return the bit number of this GPIO pin within the DDR, PORT, and PIN registers. */
+  uint8_t bitNbr() const {
+    return mNbr;
+  }
 
-    /*! \brief Return the bit number of this GPIO pin within the DDR, PORT, and PIN registers. */
-    uint8_t bitNbr() const
-    { return mNbr; }
+  /*! \brief Return the bit number needed for manipulating TCCR register (PWM related). */
+  uint8_t com() const {
+    return mCom;
+  }
 
-    /*! \brief Return the bit number needed for manipulating TCCR register (PWM related). */
-    uint8_t com() const
-    { return mCom; }
-
-    /*! \brief Return the ADC channel number (analog-to-digital related). */
-    uint8_t adcNbr() const
-    { return mAdc; }
-
+  /*! \brief Return the ADC channel number (analog-to-digital related). */
+  uint8_t adcNbr() const {
+    return mAdc;
+  }
 
 private:
-
-    Gpio8Ptr        mDdr;
-    Gpio8Ptr        mPort;
-    Gpio8Ptr        mPin;
-    Gpio16Ptr       mOcr;
-    Gpio8Ptr        mTccr;
-    uint8_t         mCom;
-    uint8_t         mNbr;
-    uint8_t         mAdc;
+  Gpio8Ptr  mDdr;
+  Gpio8Ptr  mPort;
+  Gpio8Ptr  mPin;
+  Gpio16Ptr mOcr;
+  Gpio8Ptr  mTccr;
+  uint8_t   mCom;
+  uint8_t   mNbr;
+  uint8_t   mAdc;
 };
 
+#define _makeGpioVarFromGpioPin(ddr, port, pin, nbr, adc, ocr, com, tccr) \
+    GpioPinVariable(&(ddr), &(port), &(pin), nbr)
 
+#define _makeGpioVarFromGpioPinAnalog(ddr, port, pin, nbr, adc, ocr, com, tccr) \
+    GpioPinVariable(&(ddr), &(port), &(pin), nbr, adc)
 
-
-
-#define _makeGpioVarFromGpioPin( ddr, port, pin, nbr, adc, ocr, com, tccr )         \
-                                                    GpioPinVariable( &(ddr), &(port), &(pin), nbr )
-
-#define _makeGpioVarFromGpioPinAnalog( ddr, port, pin, nbr, adc, ocr, com, tccr )   \
-                                                    GpioPinVariable( &(ddr), &(port), &(pin), nbr, adc )
-
-#define _makeGpioVarFromGpioPinPwm( ddr, port, pin, nbr, adc, ocr, com, tccr )      \
-                                                    GpioPinVariable( &(ddr), &(port), &(pin), nbr, ocr, tccr, com )
-
-
+#define _makeGpioVarFromGpioPinPwm(ddr, port, pin, nbr, adc, ocr, com, tccr) \
+    GpioPinVariable(&(ddr), &(port), &(pin), nbr, ocr, tccr, com)
 
 /*!
  * \brief Create a GPIO pin variable of type GpioPinVariable from a GPIO pin macro.
@@ -529,8 +487,7 @@ private:
  * \hideinitializer
  */
 
-#define makeGpioVarFromGpioPin( pinName )               _makeGpioVarFromGpioPin( pinName )
-
+#define makeGpioVarFromGpioPin(pinName) _makeGpioVarFromGpioPin(pinName)
 
 /*!
  * \brief Create a GPIO pin variable of type GpioPinVariable that can be used for analog-to-digital reading from a GPIO pin macro.
@@ -542,8 +499,7 @@ private:
  * \hideinitializer
  */
 
-#define makeGpioVarFromGpioPinAnalog( pinName )         _makeGpioVarFromGpioPinAnalog( pinName )
-
+#define makeGpioVarFromGpioPinAnalog(pinName) _makeGpioVarFromGpioPinAnalog(pinName)
 
 /*!
  * \brief Create a GPIO pin variable of type GpioPinVariable that can be used for PWM from a GPIO pin macro.
@@ -555,11 +511,7 @@ private:
  * \hideinitializer
  */
 
-#define makeGpioVarFromGpioPinPwm( pinName )            _makeGpioVarFromGpioPinPwm( pinName )
-
-
-
-
+#define makeGpioVarFromGpioPinPwm(pinName) _makeGpioVarFromGpioPinPwm(pinName)
 
 /*!
  * \brief Test if the mode of the GPIO pin is output (i.e., the corresponding DDRn bit is set).
@@ -567,11 +519,9 @@ private:
  * \arg \c pinVar a GPIO pin variable of type GpioPinVariable.
  */
 
-inline bool isGpioPinModeOutputV( const GpioPinVariable& pinVar )
-{
-    return *(pinVar.ddr()) & ( 1 << pinVar.bitNbr() );
+inline bool isGpioPinModeOutputV(const GpioPinVariable &pinVar) {
+  return *(pinVar.ddr()) & (1 << pinVar.bitNbr());
 }
-
 
 /*!
  * \brief Test if the mode of the GPIO pin is input (i.e., the corresponding DDRn is clear).
@@ -579,14 +529,9 @@ inline bool isGpioPinModeOutputV( const GpioPinVariable& pinVar )
  * \arg \c pinVar a GPIO pin variable of type GpioPinVariable.
  */
 
-inline bool isGpioPinModeInputV( const GpioPinVariable& pinVar )
-{
-    return  !( *(pinVar.ddr()) & ( 1 << pinVar.bitNbr() ) );
+inline bool isGpioPinModeInputV(const GpioPinVariable &pinVar) {
+  return !(*(pinVar.ddr()) & (1 << pinVar.bitNbr()));
 }
-
-
-
-
 
 /*!
  * \brief Set the mode of the GPIO pin to output (i.e., set the corresponding DDRn bit).
@@ -596,13 +541,9 @@ inline bool isGpioPinModeInputV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline void setGpioPinModeOutputV( const GpioPinVariable& pinVar )
-{
-    *(pinVar.ddr()) |= (1 << pinVar.bitNbr() );
+inline void setGpioPinModeOutputV(const GpioPinVariable &pinVar) {
+  *(pinVar.ddr()) |= (1 << pinVar.bitNbr());
 }
-
-
-
 
 /*!
  * \brief Set the mode of the GPIO pin to input (i.e., clear the corresponding DDRn and PORTn bits).
@@ -612,13 +553,10 @@ inline void setGpioPinModeOutputV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline void setGpioPinModeInputV( const GpioPinVariable& pinVar )
-{
-    *(pinVar.ddr()) &= ~( 1 << pinVar.bitNbr() );
-    *(pinVar.port()) &= ~( 1 << pinVar.bitNbr() );
+inline void setGpioPinModeInputV(const GpioPinVariable &pinVar) {
+  *(pinVar.ddr()) &= ~(1 << pinVar.bitNbr());
+  *(pinVar.port()) &= ~(1 << pinVar.bitNbr());
 }
-
-
 
 /*!
  * \brief Set the mode of the GPIO pin to input with pullup (i.e., clear the corresponding DDRn bit and set the PORTn bit).
@@ -628,13 +566,10 @@ inline void setGpioPinModeInputV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline void setGpioPinModeInputPullupV( const GpioPinVariable& pinVar )
-{
-    *(pinVar.ddr()) &= ~( 1 << pinVar.bitNbr() );
-    *(pinVar.port()) |= ( 1 << pinVar.bitNbr() );
+inline void setGpioPinModeInputPullupV(const GpioPinVariable &pinVar) {
+  *(pinVar.ddr()) &= ~(1 << pinVar.bitNbr());
+  *(pinVar.port()) |= (1 << pinVar.bitNbr());
 }
-
-
 
 /*!
  * \brief Read the value of the GPIO pin (i.e., return the value of correspoinding the PINn bit).
@@ -646,13 +581,9 @@ inline void setGpioPinModeInputPullupV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline bool readGpioPinDigitalV( const GpioPinVariable& pinVar )
-{
-    return *(pinVar.pin()) & ( 1 << pinVar.bitNbr() );
+inline bool readGpioPinDigitalV(const GpioPinVariable &pinVar) {
+  return *(pinVar.pin()) & (1 << pinVar.bitNbr());
 }
-
-
-
 
 /*!
  * \brief Write a value the GPIO pin (i.e., set or clear the correspoinding the PORTn bit).
@@ -663,19 +594,13 @@ inline bool readGpioPinDigitalV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline void writeGpioPinDigitalV( const GpioPinVariable& pinVar, bool value )
-{
-    if  ( value )
-    {
-        *(pinVar.port()) |= ( 1 << pinVar.bitNbr() );
-    }
-    else
-    {
-        *(pinVar.port()) &= ~( 1 << pinVar.bitNbr() );
-    }
+inline void writeGpioPinDigitalV(const GpioPinVariable &pinVar, bool value) {
+  if (value) {
+    *(pinVar.port()) |= (1 << pinVar.bitNbr());
+  } else {
+    *(pinVar.port()) &= ~(1 << pinVar.bitNbr());
+  }
 }
-
-
 
 /*!
  * \brief Write a 1 to the GPIO pin (i.e., set the correspoinding the PORTn bit).
@@ -685,13 +610,9 @@ inline void writeGpioPinDigitalV( const GpioPinVariable& pinVar, bool value )
  * \hideinitializer
  */
 
-inline void setGpioPinHighV( const GpioPinVariable& pinVar )
-{
-    *(pinVar.port()) |= ( 1 << pinVar.bitNbr() );
+inline void setGpioPinHighV(const GpioPinVariable &pinVar) {
+  *(pinVar.port()) |= (1 << pinVar.bitNbr());
 }
-
-
-
 
 /*!
  * \brief Write a 0 to the GPIO pin (i.e., clear the correspoinding the PORTn bit).
@@ -701,11 +622,8 @@ inline void setGpioPinHighV( const GpioPinVariable& pinVar )
  * \hideinitializer
  */
 
-inline void setGpioPinLowV( const GpioPinVariable& pinVar )
-{
-    *(pinVar.port()) &= ~( 1 << pinVar.bitNbr() );
+inline void setGpioPinLowV(const GpioPinVariable &pinVar) {
+  *(pinVar.port()) &= ~(1 << pinVar.bitNbr());
 }
-
-
 
 #endif

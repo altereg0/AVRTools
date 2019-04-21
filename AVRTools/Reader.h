@@ -28,19 +28,15 @@
  * a sequential input of bytes that can be interpreted as strings and/or numbers.
  */
 
-
 #ifndef Reader_h
 #define Reader_h
-
 
 #include <stddef.h>
 #include <stdint.h>
 
-
 #ifndef SERIAL_INPUT_EOL
-#define SERIAL_INPUT_EOL    '\n'
+#define SERIAL_INPUT_EOL '\n'
 #endif
-
 
 /*!
  * \brief This is an abstract class defining a generic interface to read numbers and strings from a sequential
@@ -61,268 +57,244 @@
  * if you read numbers and the last number isn't followed by a newline).
  */
 
-
-class Reader
-{
+class Reader {
 
 public:
+  /*!
+   * \brief Constructor.  It sets the default timeout to 1 second.
+   *
+   */
+  Reader();
 
+  // Virtual methods (pure -- need to be implmented by derived classes)
 
-    /*!
-     * \brief Constructor.  It sets the default timeout to 1 second.
-     *
-     */
-    Reader();
+  /*!
+   * \brief Pure virtual function that reads and removes the next byte from the input stream.
+   *
+   * \returns the next byte, or -1 if there is nothing to read in the input stream
+   * before timeout expires.
+   */
+  virtual int read() = 0;
 
+  /*!
+   * \brief Pure virtual function that examines the next byte from the input stream, without removing it.
+   *
+   * \returns the next byte, or -1 if there is nothing to read in the input stream
+   * before timeout expires.
+   */
+  virtual int peek() = 0;
 
+  /*!
+   * \brief Pure virtual function that determines if data is available in the input stream.
+   *
+   * \returns True if data is available in the stream before timeout expires; false if timeout
+   * expires before any data appears in the stream.
+   */
+  virtual bool available() = 0;
 
-    // Virtual methods (pure -- need to be implmented by derived classes)
+  // Parsing methods
 
-    /*!
-     * \brief Pure virtual function that reads and removes the next byte from the input stream.
-     *
-     * \returns the next byte, or -1 if there is nothing to read in the input stream
-     * before timeout expires.
-     */
-    virtual int read() = 0;
+  /*!
+   * \brief Sets maximum milliseconds to wait for stream data, default is 1 second.
+   *
+   * \arg \c milliseconds the length of the timeout period in milliseconds.
+   */
+  void setTimeout(unsigned long milliseconds) {
+    mTimeOut = milliseconds;
+  }
 
+  /*!
+   * \brief Read data from the input stream until the target string is found.
+   *
+   * \arg \c target is the string the function seeks in the input stream.
+   *
+   * \returns true if target string is found before timeout, false otherwise.
+   */
+  bool find(const char *target) {
+    return findUntil(target, 0);
+  }
 
-    /*!
-     * \brief Pure virtual function that examines the next byte from the input stream, without removing it.
-     *
-     * \returns the next byte, or -1 if there is nothing to read in the input stream
-     * before timeout expires.
-     */
-    virtual int peek() = 0;
+  /*!
+   * \brief Read data from the stream until the target string of given length is found.
+   *
+   * \arg \c target is a string, the first length bytes of which the function seeks in the input stream.
+   * \arg \c length is the number of bytes of the string to use for comparison.
+   *
+   * \returns true if target string of given length is found, false if the function times out before
+   * finding the target string.
+   */
+  bool find(const char *target, size_t length) {
+    return findUntil(target, length, NULL, 0);
+  }
 
+  /*!
+   * \brief Read data from the stream until the target string is found, or the
+   * terminator string is found, or the function times out.
+   *
+   * This function is like find() but the search ends if the terminator string is found first.
+   *
+   * \arg \c target is the string the function seeks in the input stream.
+   * \arg \c terminator is the string that stops the search.
+   *
+    * \returns true if target string is found before the terminator is encountered and before
+    * the function times out; false otherwise.
+   */
+  bool findUntil(const char *target, const char *terminator);
 
-    /*!
-     * \brief Pure virtual function that determines if data is available in the input stream.
-     *
-     * \returns True if data is available in the stream before timeout expires; false if timeout
-     * expires before any data appears in the stream.
-     */
-    virtual bool available() = 0;
+  /*!
+   * \brief Read data from the stream until the target string of given length is found, or the
+   * terminator string of given length is found, or the function times out.
+   *
+   * This function is like find() but the search ends if the terminator string is found first.
+   *
+   * \arg \c target is the string the function seeks in the input stream.
+   * \arg \c targetLen is the number of bytes in target that the function seeks in the input stream.
+   * \arg \c terminator is the string that stops the search.
+   * \arg \c termLen is the number of bytes in the terminator that
+   *
+    * \returns true if target string is found before the terminator is encountered and before
+    * the function times out; false otherwise.
+   */
+  bool findUntil(const char *target, size_t targetLen, const char *terminate, size_t termLen);
 
+  /*!
+   * \brief Return the first valid long integer value from the stream.
+   *
+   * Initial characters that are not digits (or the minus sign) are skipped;
+   * the integer is terminated by the first character that is not a digit.
+   *
+   * \arg \c result is a pointer to where the long integer will be stored.
+   *
+   * \returns true if a valid integer is found prior to timeout; false otherwise.
+   */
+  bool readLong(long *result);
 
+  /*!
+   * \brief Return the first valid float value from the stream.
+   *
+   * Initial characters that are not digits (or the minus sign) are skipped;
+   * the float is terminated by the first character that is not a digit.
+   *
+   * \arg \c result is a pointer to where the float will be stored.
+   *
+   * \returns true if a valid float is found prior to timeout; false otherwise.
+   */
+  bool readFloat(float *result);
 
+  /*!
+   * \brief Return the first valid long integer value from the stream, ignoring
+   * selected characters.
+   *
+   * Initial characters that are not digits (or the minus sign) are skipped;
+   * the integer is terminated by the first character that is not a digit and is not
+   * one of the skip characters.  This allows format characters (typically commas)
+   * to be ignored on input.
+   *
+   * \arg \c result is a pointer to where the long integer will be stored.
+   * \arg \c skipChar is a character that will be ignored on input.
+   *
+   * \returns true if a valid long integer is found prior to timeout; false otherwise.
+   */
+  bool readLong(long *result, char skipChar);
 
-    // Parsing methods
+  /*!
+   * \brief Return the first valid float value from the stream, ignoring
+   * selected characters.
+   *
+   * Initial characters that are not digits (or the minus sign) are skipped;
+   * the float is terminated by the first character that is not a digit and is not
+   * one of the skip characters.  This allows format characters (typically commas)
+   * to be ignored on input.
+   *
+   * \arg \c result is a pointer to where the float will be stored.
+   * \arg \c skipChar is a character that will be ignored on input.
+   *
+   * \returns true if a valid float is found prior to timeout; false otherwise.
+   */
+  bool readFloat(float *result, char skipChar);
 
-    /*!
-     * \brief Sets maximum milliseconds to wait for stream data, default is 1 second.
-     *
-     * \arg \c milliseconds the length of the timeout period in milliseconds.
-     */
-    void setTimeout( unsigned long milliseconds )
-    { mTimeOut = milliseconds; }
+  /*!
+   * \brief Read characters from the input stream into a buffer, terminating if length characters
+   * have been read or the function times out.  The result is \e NOT null-termimated.
+   *
+   * \arg \c buffer a pointer to where the characters read will be stored.
+   * \arg \c length the maximum number of characters to read.
+   *
+   * \returns the number of characters placed in the buffer (0 means no data were read prior to
+   * timeout).
+   */
+  size_t readBytes(char *buffer, size_t length);
 
+  /*!
+   * \brief Read characters from the input stream into a buffer, terminating  when the terminator
+   * charactor is encountered, or if length characters
+   * have been read, or if the function times out.  The result is \e NOT null-terminated.
+   *
+   * \arg \c terminator a character that when encountered causes the function to return.
+   * \arg \c buffer a pointer to where the characters read will be stored.
+   * \arg \c length the maximum number of characters to read.
+   *
+   * \returns the number of characters placed in the buffer (0 means no data were read prior to
+   * timeout or detecting the terminator character).
+   */
+  size_t readBytesUntil(char terminator, char *buffer, size_t length);
 
-    /*!
-     * \brief Read data from the input stream until the target string is found.
-     *
-     * \arg \c target is the string the function seeks in the input stream.
-     *
-     * \returns true if target string is found before timeout, false otherwise.
-     */
-    bool find( const char *target )
-    { return findUntil( target, 0 ); }
+  /*!
+   * \brief Read bytes (uint8_t) from the input stream into a buffer, terminating if length bytes
+   * have been read or the function times out.
+   *
+   * \arg \c buffer a pointer to where the bytes read will be stored.
+   * \arg \c length the maximum number of bytes to read.
+   *
+   * \returns the number of bytes placed in the buffer (0 means no data were read prior to
+   * timeout).
+   */
+  size_t readBytes(uint8_t *buffer, size_t length) {
+    return readBytes(reinterpret_cast<char *>(buffer), length);
+  }
 
+  /*!
+   * \brief Read bytes (uint8_t) from the input stream into a buffer, terminating  when the terminator
+   * byte is encountered, or if length bytes
+   * have been read, or if the function times out.
+   *
+   * \arg \c terminator a byte that when encountered causes the function to return.
+   * \arg \c buffer a pointer to where the bytes read will be stored.
+   * \arg \c length the maximum number of bytes to read.
+   *
+   * \returns the number of bytes placed in the buffer (0 means no data were read prior to
+   * timeout or detecting the terminator character).
+   */
+  size_t readBytesUntil(uint8_t terminator, uint8_t *buffer, size_t length) {
+    return readBytesUntil(static_cast<char>(terminator), reinterpret_cast<char *>(buffer), length);
+  }
 
-    /*!
-     * \brief Read data from the stream until the target string of given length is found.
-     *
-     * \arg \c target is a string, the first length bytes of which the function seeks in the input stream.
-     * \arg \c length is the number of bytes of the string to use for comparison.
-     *
-     * \returns true if target string of given length is found, false if the function times out before
-     * finding the target string.
-     */
-    bool find( const char *target, size_t length )
-    { return findUntil( target, length, NULL, 0 ); }
+  /*!
+   * \brief Read characters from the input stream into a buffer, until it reaches EOL, or if
+   * length characters have been read, or if it times out.
+   * The result \e IS null-termimated.
+   *
+   * \arg \c buffer a pointer to where the characters read will be stored.
+   * \arg \c length the maximum number of characters to read.
+   *
+   * \returns the number of characters placed in the buffer (0 means no data were read prior to
+   * timeout or detecting EOL).
+   */
+  size_t readLine(char *buffer, size_t length);
 
-
-    /*!
-     * \brief Read data from the stream until the target string is found, or the
-     * terminator string is found, or the function times out.
-     *
-     * This function is like find() but the search ends if the terminator string is found first.
-     *
-     * \arg \c target is the string the function seeks in the input stream.
-     * \arg \c terminator is the string that stops the search.
-     *
-      * \returns true if target string is found before the terminator is encountered and before
-      * the function times out; false otherwise.
-     */
-    bool findUntil( const char *target, const char *terminator );
-
-
-    /*!
-     * \brief Read data from the stream until the target string of given length is found, or the
-     * terminator string of given length is found, or the function times out.
-     *
-     * This function is like find() but the search ends if the terminator string is found first.
-     *
-     * \arg \c target is the string the function seeks in the input stream.
-     * \arg \c targetLen is the number of bytes in target that the function seeks in the input stream.
-     * \arg \c terminator is the string that stops the search.
-     * \arg \c termLen is the number of bytes in the terminator that
-     *
-      * \returns true if target string is found before the terminator is encountered and before
-      * the function times out; false otherwise.
-     */
-    bool findUntil( const char *target, size_t targetLen, const char *terminate, size_t termLen );
-
-
-    /*!
-     * \brief Return the first valid long integer value from the stream.
-     *
-     * Initial characters that are not digits (or the minus sign) are skipped;
-     * the integer is terminated by the first character that is not a digit.
-     *
-     * \arg \c result is a pointer to where the long integer will be stored.
-     *
-     * \returns true if a valid integer is found prior to timeout; false otherwise.
-     */
-    bool readLong( long* result );
-
-
-    /*!
-     * \brief Return the first valid float value from the stream.
-     *
-     * Initial characters that are not digits (or the minus sign) are skipped;
-     * the float is terminated by the first character that is not a digit.
-     *
-     * \arg \c result is a pointer to where the float will be stored.
-     *
-     * \returns true if a valid float is found prior to timeout; false otherwise.
-     */
-    bool readFloat( float* result );
-
-
-    /*!
-     * \brief Return the first valid long integer value from the stream, ignoring
-     * selected characters.
-     *
-     * Initial characters that are not digits (or the minus sign) are skipped;
-     * the integer is terminated by the first character that is not a digit and is not
-     * one of the skip characters.  This allows format characters (typically commas)
-     * to be ignored on input.
-     *
-     * \arg \c result is a pointer to where the long integer will be stored.
-     * \arg \c skipChar is a character that will be ignored on input.
-     *
-     * \returns true if a valid long integer is found prior to timeout; false otherwise.
-     */
-    bool readLong( long* result, char skipChar );
-
-
-    /*!
-     * \brief Return the first valid float value from the stream, ignoring
-     * selected characters.
-     *
-     * Initial characters that are not digits (or the minus sign) are skipped;
-     * the float is terminated by the first character that is not a digit and is not
-     * one of the skip characters.  This allows format characters (typically commas)
-     * to be ignored on input.
-     *
-     * \arg \c result is a pointer to where the float will be stored.
-     * \arg \c skipChar is a character that will be ignored on input.
-     *
-     * \returns true if a valid float is found prior to timeout; false otherwise.
-     */
-    bool readFloat( float* result, char skipChar );
-
-
-    /*!
-     * \brief Read characters from the input stream into a buffer, terminating if length characters
-     * have been read or the function times out.  The result is \e NOT null-termimated.
-     *
-     * \arg \c buffer a pointer to where the characters read will be stored.
-     * \arg \c length the maximum number of characters to read.
-     *
-     * \returns the number of characters placed in the buffer (0 means no data were read prior to
-     * timeout).
-     */
-    size_t readBytes( char *buffer, size_t length );
-
-
-    /*!
-     * \brief Read characters from the input stream into a buffer, terminating  when the terminator
-     * charactor is encountered, or if length characters
-     * have been read, or if the function times out.  The result is \e NOT null-terminated.
-     *
-     * \arg \c terminator a character that when encountered causes the function to return.
-     * \arg \c buffer a pointer to where the characters read will be stored.
-     * \arg \c length the maximum number of characters to read.
-     *
-     * \returns the number of characters placed in the buffer (0 means no data were read prior to
-     * timeout or detecting the terminator character).
-     */
-   size_t readBytesUntil( char terminator, char* buffer, size_t length );
-
-
-    /*!
-     * \brief Read bytes (uint8_t) from the input stream into a buffer, terminating if length bytes
-     * have been read or the function times out.
-     *
-     * \arg \c buffer a pointer to where the bytes read will be stored.
-     * \arg \c length the maximum number of bytes to read.
-     *
-     * \returns the number of bytes placed in the buffer (0 means no data were read prior to
-     * timeout).
-     */
-    size_t readBytes( uint8_t* buffer, size_t length )
-    { return readBytes( reinterpret_cast<char*>(buffer), length ); }
-
-
-
-    /*!
-     * \brief Read bytes (uint8_t) from the input stream into a buffer, terminating  when the terminator
-     * byte is encountered, or if length bytes
-     * have been read, or if the function times out.
-     *
-     * \arg \c terminator a byte that when encountered causes the function to return.
-     * \arg \c buffer a pointer to where the bytes read will be stored.
-     * \arg \c length the maximum number of bytes to read.
-     *
-     * \returns the number of bytes placed in the buffer (0 means no data were read prior to
-     * timeout or detecting the terminator character).
-     */
-   size_t readBytesUntil( uint8_t terminator, uint8_t* buffer, size_t length )
-   { return readBytesUntil( static_cast<char>(terminator), reinterpret_cast<char*>(buffer), length ); }
-
-
-    /*!
-     * \brief Read characters from the input stream into a buffer, until it reaches EOL, or if
-     * length characters have been read, or if it times out.
-     * The result \e IS null-termimated.
-     *
-     * \arg \c buffer a pointer to where the characters read will be stored.
-     * \arg \c length the maximum number of characters to read.
-     *
-     * \returns the number of characters placed in the buffer (0 means no data were read prior to
-     * timeout or detecting EOL).
-     */
-    size_t readLine( char *buffer, size_t length );
-
-
-    /*!
-     * \brief Consumes whitespace characters until the first non-whitespace character is encountered or
-     * the function times out.
-     */
-    void consumeWhiteSpace();
-
+  /*!
+   * \brief Consumes whitespace characters until the first non-whitespace character is encountered or
+   * the function times out.
+   */
+  void consumeWhiteSpace();
 
 private:
+  // Number of milliseconds to wait for the next char before aborting timed read
+  unsigned long mTimeOut;
 
-    // Number of milliseconds to wait for the next char before aborting timed read
-    unsigned long mTimeOut;
-
-    int timedRead();            // private method to read stream with timeout
-    int timedPeek();            // private method to peek stream with timeout
-    int peekNextDigit();        // returns the next numeric digit in the stream or -1 if timeout
+  int timedRead();     // private method to read stream with timeout
+  int timedPeek();     // private method to peek stream with timeout
+  int peekNextDigit(); // returns the next numeric digit in the stream or -1 if timeout
 };
-
 
 #endif
