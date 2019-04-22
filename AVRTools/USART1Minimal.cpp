@@ -55,19 +55,10 @@ void transmitUSART1(unsigned char *data) {
   }
 }
 
-<<<<<<< HEAD
 unsigned char receiveUSART1() {
   while (!(UCSR1A & (1 << RXC1))) // wait while data is being received
     ;
   return UDR1; // return 8-bit data
-=======
-
-unsigned char receiveUSART1()
-{
-    while ( !( UCSR1A & (1<<RXC1) ) )                       // wait while data is being received
-        ;
-    return UDR1;                                            // return 8-bit data
->>>>>>> bff528eef8102ca399865a4b075bffde7fb32194
 }
 
 void releaseUSART1() {

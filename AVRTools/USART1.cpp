@@ -201,31 +201,8 @@ size_t USART1::write(const uint8_t *c, size_t n) {
       txBuffer.push(*c++);
       ++cnt;
 
-<<<<<<< HEAD
       // Set UDRE interrupt (each time in case interrupt fires and clears in between)
       UCSR1B |= (1 << UDRIE1);
-=======
-size_t USART1::write( const uint8_t* c, size_t n )
-{
-    size_t cnt = 0;
-    if ( c )
-    {
-        while ( n-- )
-        {
-            // If buffer is full, wait...
-            while ( txBuffer.isFull() )
-                ;
-
-            txBuffer.push( *c++ );
-            ++cnt;
-
-            // Set UDRE interrupt (each time in case interrupt fires and clears in between)
-            UCSR1B |= ( 1 << UDRIE1 );
-        }
-
-        // Clear TXC flag by writing a 1 (*not* a typo); suffices to do this at the end
-        UCSR1A |= ( 1 << TXC1 );
->>>>>>> bff528eef8102ca399865a4b075bffde7fb32194
     }
 
     // Clear TXC flag by writing a 1 (*not* a typo); suffices to do this at the end
@@ -266,10 +243,7 @@ int Serial1::read() {
 int Serial1::peek() {
   return USART1::peek();
 }
-<<<<<<< HEAD
 
 bool Serial1::available() {
   return USART1::available();
 }
-=======
->>>>>>> bff528eef8102ca399865a4b075bffde7fb32194
