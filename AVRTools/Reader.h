@@ -124,7 +124,7 @@ public:
    * finding the target string.
    */
   bool find(const char *target, size_t length) {
-    return findUntil(target, length, NULL, 0);
+    return findUntil(target, length, nullptr, 0);
   }
 
   /*!
