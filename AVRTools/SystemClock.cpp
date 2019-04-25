@@ -261,6 +261,8 @@ void delayMicroseconds(unsigned int us) {
 
 void initSystemClock() {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    //enable power
+    PRR0 &= ~(1 << PRTIM0);
     // Use Timer0 for the system clock, but configure it so it also supports
     // fast hardware pwm (using phase-correct PWM would mean that Timer0
     // overflowed half as often)
