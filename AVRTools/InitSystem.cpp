@@ -70,12 +70,14 @@ void initSystem() {
 #endif
 
 #if defined(__AVR_ATmega2560__)
+#ifdef AVRTOOLS_RESET_MCU
     /* On AVR devices all peripherals are enabled from power on reset, this
      * disables all peripherals to save power. Driver shall enable peripheral if used */
     //PRR0 =  PRTWI   PRTIM2  PRTIM0  –       PRTIM1  PRSPI     PRUSART0  PRADC
     //PRR1 =  –       –       PRTIM5  PRTIM4  PRTIM3  PRUSART3  PRUSART2  PRUSART1
     PRR0  = (1 << PRTWI) | (1 << PRTIM2) | (1 << PRTIM0) | (1 << PRTIM1) | (1 << PRSPI) | (1 << PRUSART0) | (1 << PRADC);
     PRR1  = (1 << PRTIM5) | (1 << PRTIM4) | (1 << PRTIM3) | (1 << PRUSART3) | (1 << PRUSART2) | (1 << PRUSART1);
+
     /* Set all pins to input pullup mode */
     DDRA  = 0x00;
     PORTA = 0xFF;
@@ -109,6 +111,7 @@ void initSystem() {
 
     DDRL  = 0x00;
     PORTL = 0xFF;
+#endif
 #endif
   }
 

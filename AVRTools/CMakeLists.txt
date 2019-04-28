@@ -2,6 +2,7 @@
 # AVRTools library
 #####################################################################
 add_compile_definitions( SERIAL_OUTPUT_EOL=\"\\r\\n\" )
+add_compile_definitions( AVRTOOLS_RESET_MCU )
 set( AVRTOOLS_SRC_FILES
         abi.cpp
         new.cpp
