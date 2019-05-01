@@ -38,6 +38,12 @@ set( AVRTOOLS_UART0_MINIMAL_SRC_FILES
         USART0Minimal.cpp
         )
 
+set( AVRTOOLS_WIRERTC_SRC_FILES
+        DS1307RTC.cpp
+        I2cMaster.cpp
+        USART0Minimal.cpp
+        )
+
 add_avr_library( avrtools ${AVRTOOLS_SRC_FILES} )
 
 add_avr_library( avrtools-a2d ${AVRTOOLS_A2D_SRC_FILES} )
@@ -48,6 +54,7 @@ add_avr_library( avrtools-ow ${AVRTOOLS_ONEWIRE_SRC_FILES} )
 add_avr_library( avrtools-usart0 ${AVRTOOLS_UART0_SRC_FILES} )
 add_avr_library( avrtools-usart0minimal ${AVRTOOLS_UART0_MINIMAL_SRC_FILES} )
 
+add_avr_library( avrtools-ds1307 ${AVRTOOLS_WIRERTC_SRC_FILES} )
 
 avr_target_include_common_directories(
         avrtools PUBLIC
@@ -57,6 +64,11 @@ avr_target_include_common_directories(
         avrtools-usart0 PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+avr_target_include_common_directories(
+        avrtools-ds1307 PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 message( STATUS "AVRTOOLS: ${CMAKE_CURRENT_SOURCE_DIR}" )
 message( ">\tCurrent build type: ${CMAKE_BUILD_TYPE}" )
 #####################################################################

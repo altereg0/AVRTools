@@ -373,7 +373,7 @@ BufferI2cTx gI2cBuffer;
 
 bool gI2cBusy;
 
-#if I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
+#ifdef I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
 uint8_t gRetries;
 #endif
 
@@ -393,7 +393,7 @@ void startI2c() {
 
     gI2cBusy = 1;
 
-#if I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
+#ifdef I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
     gRetries = 0;
 #endif
 
@@ -408,10 +408,13 @@ void startI2c() {
 } // namespace
 
 void I2cMaster::start(uint8_t speed) {
+
+  //enable power
+  PRR0 &= ~(1 << PRTWI);
   // Initialize our internal flags
   gI2cBusy = false;
 
-#if I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
+#ifdef I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
   gRetries = 0;
 #endif
 
@@ -443,6 +446,8 @@ void I2cMaster::start(uint8_t speed) {
 
 void I2cMaster::stop() {
   TWCR = 0;
+  //disable power
+  PRR0 |= (1 << PRTWI);
 }
 
 void I2cMaster::pullups(uint8_t set) {
@@ -620,7 +625,7 @@ uint8_t I2cMaster::readAsync(uint8_t address, uint8_t registerAddress, uint8_t n
 
 // Synchronous
 
-int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress) {
+uint8_t I2cMaster::writeSync(uint8_t address, uint8_t registerAddress) {
   volatile uint8_t status;
   uint8_t          err = writeAsync(address, registerAddress, &status);
   if (!err) {
@@ -630,7 +635,7 @@ int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress) {
   return err;
 }
 
-int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t data) {
+uint8_t I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t data) {
   volatile uint8_t status;
   uint8_t          err = writeAsync(address, registerAddress, data, &status);
   if (!err) {
@@ -640,7 +645,7 @@ int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t data)
   return err;
 }
 
-int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, const char *data) {
+uint8_t I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, const char *data) {
   volatile uint8_t status;
   uint8_t          err = writeAsync(address, registerAddress, data, &status);
   if (!err) {
@@ -650,7 +655,7 @@ int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, const char *d
   return err;
 }
 
-int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes) {
+uint8_t I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes) {
   volatile uint8_t status;
   uint8_t          err = writeAsync(address, registerAddress, data, numberBytes, &status);
   if (!err) {
@@ -660,7 +665,7 @@ int I2cMaster::writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data
   return err;
 }
 
-int I2cMaster::readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination) {
+uint8_t I2cMaster::readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination) {
   volatile uint8_t status;
   volatile uint8_t bytesRead;
   uint8_t          err = readAsync(address, numberBytes, destination, &bytesRead, &status);
@@ -671,7 +676,7 @@ int I2cMaster::readSync(uint8_t address, uint8_t numberBytes, uint8_t *destinati
   return err;
 }
 
-int I2cMaster::readSync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t *destination) {
+uint8_t I2cMaster::readSync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t *destination) {
   volatile uint8_t status;
   volatile uint8_t bytesRead;
   uint8_t          err = readAsync(address, registerAddress, numberBytes, destination, &bytesRead, &status);
@@ -752,7 +757,7 @@ ISR(TWI_vect) {
       TWDR = SLA_R(gI2cBuffer.getCurrentAddress());
     }
     *(gI2cBuffer.getCurrentStatus()) = I2cMaster::kI2cInProgress;
-#if I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
+#ifdef I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
     gRetries = 0;
 #endif
     gI2cBusy = true;
@@ -870,7 +875,7 @@ ISR(TWI_vect) {
   case TW_MT_SLA_NACK: // SLA+W has been tramsmitted and NACK received
   case TW_MR_SLA_NACK: // SLA+R has been tramsmitted and NACK received
     // Slave may still be resetting.  Try again (but stay on current msg).
-#if I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
+#ifdef I2C_MASTER_SLA_NACK_SPECIAL_HANDLING
     if (gRetries++ < 3)
     {
 #ifdef DEBUG_I2cMasterDiary

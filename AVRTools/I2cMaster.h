@@ -347,7 +347,7 @@ uint8_t readAsync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes,
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int writeSync(uint8_t address, uint8_t registerAddress);
+uint8_t writeSync(uint8_t address, uint8_t registerAddress);
 
 /*!
      * \brief Transmit a single register address and corresponding single byte of data synchronously. This function blocks until
@@ -361,7 +361,7 @@ int writeSync(uint8_t address, uint8_t registerAddress);
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int writeSync(uint8_t address, uint8_t registerAddress, uint8_t data);
+uint8_t writeSync(uint8_t address, uint8_t registerAddress, uint8_t data);
 
 /*!
      * \brief Transmit a single register address and corresponding null-terminated string of data synchronously.
@@ -377,7 +377,7 @@ int writeSync(uint8_t address, uint8_t registerAddress, uint8_t data);
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int writeSync(uint8_t address, uint8_t registerAddress, const char *data);
+uint8_t writeSync(uint8_t address, uint8_t registerAddress, const char *data);
 
 /*!
      * \brief Transmit a single register address and corresponding buffer of data synchronously.
@@ -395,7 +395,7 @@ int writeSync(uint8_t address, uint8_t registerAddress, const char *data);
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes);
+uint8_t writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t numberBytes);
 
 /*!
      * \brief Request to read data from a device and receive that data synchronously.
@@ -410,7 +410,7 @@ int writeSync(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t n
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination);
+uint8_t readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination);
 
 /*!
      * \brief Request to read data from a specific register on a device and receive that data synchronously.
@@ -428,7 +428,7 @@ int readSync(uint8_t address, uint8_t numberBytes, uint8_t *destination);
      * \returns an error code which if positive corresponds to I2cSendErrorCodes, or if negative the absolute value
      * corresponds to I2cStatusCodes (0 means no error).
      */
-int readSync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t *destination);
+uint8_t readSync(uint8_t address, uint8_t registerAddress, uint8_t numberBytes, uint8_t *destination);
 
 #if defined(DEBUG_I2cMasterBuffer) || defined(DEBUG_I2cMasterDiary)
 void setDebugSout(Serial0 *s);
