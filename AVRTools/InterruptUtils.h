@@ -202,6 +202,6 @@ private:
   uint8_t mPinChangeInterruptsToSuppress;
 };
 
-}; // namespace Interrupts
+} // namespace Interrupts
 
 #endif
