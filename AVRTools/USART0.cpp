@@ -102,7 +102,11 @@ void USART0::start(unsigned long baudRate, UsartSerialConfiguration config) {
 
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     //enable power
+#if defined(__AVR_ATmega328P__)
+    PRR &= ~(1 << PRUSART0);
+#elif defined(__AVR_ATmega2560__)
     PRR0 &= ~(1 << PRUSART0);
+#endif
     // Asynchronous mode, with everything else off
     UCSR0A &= ~((1 << U2X0) | (1 << MPCM0));
     UCSR0B &= ~((1 << RXCIE0) | (1 << TXCIE0) | (1 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0) | (1 << UCSZ02) | (1 << TXB80));
@@ -134,7 +138,11 @@ void USART0::stop() {
   // Turn off TX, RX, and interrupts
   UCSR0B &= ~((1 << RXCIE0) | (1 << TXCIE0) | (1 << UDRIE0) | (1 << RXEN0) | (1 << TXEN0));
   //disable power
+#if defined(__AVR_ATmega328P__)
+  PRR |= (1 << PRUSART0);
+#elif defined(__AVR_ATmega2560__)
   PRR0 |= (1 << PRUSART0);
+#endif
 
   // Clear the receive buffer
   rxBuffer.clear();

@@ -410,7 +410,12 @@ void startI2c() {
 void I2cMaster::start(uint8_t speed) {
 
   //enable power
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRTWI);
+#elif defined(__AVR_ATmega2560__)
   PRR0 &= ~(1 << PRTWI);
+#endif
+
   // Initialize our internal flags
   gI2cBusy = false;
 
@@ -447,7 +452,11 @@ void I2cMaster::start(uint8_t speed) {
 void I2cMaster::stop() {
   TWCR = 0;
   //disable power
+#if defined(__AVR_ATmega328P__)
+  PRR |= (1 << PRTWI);
+#elif defined(__AVR_ATmega2560__)
   PRR0 |= (1 << PRTWI);
+#endif
 }
 
 void I2cMaster::pullups(uint8_t set) {

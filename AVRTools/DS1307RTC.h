@@ -50,7 +50,7 @@
 
 #ifndef DS1307RTC_h
 #define DS1307RTC_h
-#include <stdint-gcc.h>
+#include <stdint.h>
 #include <time.h>
 
 #define TIME_STX 0x02  // Header tag for start serial time sync message

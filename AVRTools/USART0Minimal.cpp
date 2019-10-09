@@ -30,7 +30,11 @@
 void initUSART0(unsigned long baudRate) {
   uint16_t baudSetting = ((F_CPU + baudRate * 8L) / (baudRate * 16L) - 1);
   //enable power
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRUSART0);
+#elif defined(__AVR_ATmega2560__)
   PRR0 &= ~(1 << PRUSART0);
+#endif
 
   UBRR0H               = baudSetting >> 8;               // shift the register right by 8 bits
   UBRR0L               = baudSetting;                    // set baud rate
@@ -63,5 +67,9 @@ unsigned char receiveUSART0() {
 void releaseUSART0() {
   UCSR0B = 0;
   //disable power
+#if defined(__AVR_ATmega328P__)
+  PRR |= (1 << PRUSART0);
+#elif defined(__AVR_ATmega2560__)
   PRR0 |= (1 << PRUSART0);
+#endif
 }

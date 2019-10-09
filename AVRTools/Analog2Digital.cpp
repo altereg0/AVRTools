@@ -38,6 +38,14 @@ int8_t sCurrentChannel;
 }
 
 void initA2D(uint8_t ref) {
+
+//enable power
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRADC);
+#elif defined(__AVR_ATmega2560__)
+  PRR0 &= ~(1 << PRADC);
+#endif
+
   // Set default prescaler, and zero the rest of ADCSRA
 
   // Desired range is 50-200 KHz
@@ -62,6 +70,7 @@ void initA2D(uint8_t ref) {
 
 #endif
 
+
   // Zero ADCSRB
   ADCSRB = 0;
 
@@ -80,6 +89,13 @@ void initA2D(uint8_t ref) {
 void turnOffA2D() {
   // Clear (turn off) ADC
   ADCSRA &= ~(1 << ADEN);
+  //disable power
+#if defined(__AVR_ATmega328P__)
+  PRR |= (1 << PRADC);
+#elif defined(__AVR_ATmega2560__)
+  PRR0 |= (1 << PRADC);
+#endif
+
 }
 
 void setA2DVoltageReference(A2DVoltageReference ref) {

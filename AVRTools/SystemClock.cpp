@@ -262,7 +262,11 @@ void delayMicroseconds(unsigned int us) {
 void initSystemClock() {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     //enable power
+#if defined(__AVR_ATmega328P__)
+    PRR &= ~(1 << PRTIM0);
+#elif defined(__AVR_ATmega2560__)
     PRR0 &= ~(1 << PRTIM0);
+#endif
     // Use Timer0 for the system clock, but configure it so it also supports
     // fast hardware pwm (using phase-correct PWM would mean that Timer0
     // overflowed half as often)

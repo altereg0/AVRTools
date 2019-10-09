@@ -36,7 +36,11 @@
 void SPI::enable() {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     //enable power
+#if defined(__AVR_ATmega328P__)
+    PRR &= ~(1 << PRSPI);
+#elif defined(__AVR_ATmega2560__)
     PRR0 &= ~(1 << PRSPI);
+#endif
     // Set SS to high so a connected chip will be "deselected" by default
     // If the SS pin is not already configured as an output
     // then set it high (to enable the internal pull-up resistor)
@@ -73,7 +77,11 @@ void SPI::disable() {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     SPCR &= ~_BV(SPE);
     //disable power
+#if defined(__AVR_ATmega328P__)
+    PRR |= (1 << PRSPI);
+#elif defined(__AVR_ATmega2560__)
     PRR0 |= (1 << PRSPI);
+#endif
   }
 }
 
