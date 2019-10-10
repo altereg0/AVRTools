@@ -475,7 +475,7 @@ private:
     GpioPinVariable(&(ddr), &(port), &(pin), nbr, adc)
 
 #define _makeGpioVarFromGpioPinPwm(ddr, port, pin, nbr, adc, ocr, com, tccr) \
-    GpioPinVariable(&(ddr), &(port), &(pin), nbr, ocr, tccr, com)
+    GpioPinVariable(&(ddr), &(port), &(pin), nbr, &(ocr), &(tccr), com)
 
 /*!
  * \brief Create a GPIO pin variable of type GpioPinVariable from a GPIO pin macro.

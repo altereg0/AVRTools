@@ -35,6 +35,12 @@ void clearTimer0() {
 
 void initPwmTimer0() {
   clearTimer0();
+//power up
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRTIM0);
+#elif defined(__AVR_ATmega2560__)
+  PRR0 &= ~(1 << PRTIM0);
+#endif
 
   // Set Timer1 prescale factor to 64
   TCCR0B |= (1 << CS01) | (1 << CS00);
@@ -52,6 +58,12 @@ void clearTimer1() {
 
 void initPwmTimer1() {
   clearTimer1();
+//powerup
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRTIM1);
+#elif defined(__AVR_ATmega2560__)
+  PRR0 &= ~(1 << PRTIM1);
+#endif
 
   // Set Timer1 prescale factor to 64
   TCCR1B |= (1 << CS11) | (1 << CS10);
@@ -69,6 +81,13 @@ void clearTimer2() {
 
 void initPwmTimer2() {
   clearTimer2();
+
+//power up
+#if defined(__AVR_ATmega328P__)
+  PRR &= ~(1 << PRTIM2);
+#elif defined(__AVR_ATmega2560__)
+  PRR0 &= ~(1 << PRTIM2);
+#endif
 
   // Set Timer2 prescale factor to 64
   TCCR2B |= (1 << CS22);

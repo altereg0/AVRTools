@@ -47,6 +47,7 @@ set( AVRTOOLS_WIRERTC_SRC_FILES
 add_avr_library( avrtools ${AVRTOOLS_SRC_FILES} )
 
 add_avr_library( avrtools-a2d ${AVRTOOLS_A2D_SRC_FILES} )
+add_avr_library( avrtools-pwm ${AVRTOOLS_PWM_SRC_FILES} )
 add_avr_library( avrtools-i2c ${AVRTOOLS_I2C_SRC_FILES} )
 add_avr_library( avrtools-spi ${AVRTOOLS_SPI_SRC_FILES} )
 add_avr_library( avrtools-ow ${AVRTOOLS_ONEWIRE_SRC_FILES} )
