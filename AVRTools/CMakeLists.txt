@@ -44,6 +44,11 @@ set( AVRTOOLS_WIRERTC_SRC_FILES
         USART0Minimal.cpp
         )
 
+set( AVRTOOLS_TM1637_SRC_FILES
+        tm1637.cpp
+
+)
+
 add_avr_library( avrtools ${AVRTOOLS_SRC_FILES} )
 
 add_avr_library( avrtools-a2d ${AVRTOOLS_A2D_SRC_FILES} )
@@ -56,6 +61,8 @@ add_avr_library( avrtools-usart0 ${AVRTOOLS_UART0_SRC_FILES} )
 add_avr_library( avrtools-usart0minimal ${AVRTOOLS_UART0_MINIMAL_SRC_FILES} )
 
 add_avr_library( avrtools-ds1307 ${AVRTOOLS_WIRERTC_SRC_FILES} )
+
+add_avr_library( avrtools-tm1637 ${AVRTOOLS_TM1637_SRC_FILES} )
 
 avr_target_include_common_directories(
         avrtools PUBLIC
