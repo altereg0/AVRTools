@@ -35,6 +35,9 @@
 
 #include "GpioPinMacros.h"
 
+#ifndef AVRTOOLS_VCC_CALIBRATION_VALUE
+#define AVRTOOLS_VCC_CALIBRATION_VALUE 1125300L
+
 #if defined(__AVR_ATmega2560__)
 
 /*! \brief Constants representing voltage references
@@ -85,7 +88,44 @@ enum A2DVoltageReference
 
 #define readGpioPinAnalog(pinName) _readGpioPinAnalog(pinName)
 
-int readA2D(int8_t channel);
+uint16_t readA2D(int8_t channel);
+
+/*!
+ * \brief Read the Vcc using internal 1.1 Vbg / Read Appnote AN2447.
+ *
+ * This function returns a number between 0 and 1023 that corresponds to voltage between
+ * 0 and a maximum reference value.  The reference value is set using one of the
+ * setA2DVoltageReferenceXXX() functions.
+ *
+ *
+ * \returns an value between 0 and 1023.
+ *
+ * \note Before calling this function must fist initialize the analog-to-digital sub-system
+ * by calling initA2D().
+ *
+ * \hideinitializer
+ */
+uint16_t readVCC();
+
+uint16_t readZero();
+
+/*!
+ * \brief Read internal temperature
+ *
+ * The temperature measurement is based on an on-chip temperature sensor that is coupled to a single ended ADC input.
+ * MUX[4..0] bits in ADMUX register enables the temperature sensor. The internal 1.1V voltage reference must also be
+ * selected for the ADC voltage reference source in the temperature sensor measurement. When the temperature sensor is
+ * enabled, the ADC converter can be used in single conversion mode to measure the voltage over the temperature sensor.
+ * The measured voltage has a linear relationship to the temperature as described in Table 23-2 on page 215.
+ * The voltage sensitivity is approximately 1LSB/°C and the accuracy of the temperature measurement is ±10°C using
+ * manufacturing calibration values (TS_GAIN, TS_OFFSET).
+ *
+ * \returns an value between 0 and 1023.
+ *
+ * \note Before calling this function must fist initialize the analog-to-digital sub-system
+ * by calling initA2D().
+ */
+uint16_t readTemp();
 
 /*!
  * \brief Read the analog value of the pin.
@@ -102,7 +142,7 @@ int readA2D(int8_t channel);
  * by calling initA2D().
  */
 
-inline uint16_t readGpioPinAnalogV(const GpioPinVariable &pinVar) {
+inline uint32_t readGpioPinAnalogV(const GpioPinVariable &pinVar) {
   return readA2D(pinVar.adcNbr());
 }
 
@@ -116,6 +156,9 @@ inline uint16_t readGpioPinAnalogV(const GpioPinVariable &pinVar) {
  * kA2dReferenceAVCC.
  *
  * \note This function only works for CPU clocks running at either 8 MHz, 12 MHz, or 16 MHz.
+ * AVCC must not differ more than ±0.3V from VCC
+ * Internal reference voltages of nominally 1.1V or AVCC are provided on-chip.
+ * The voltage reference may be externally decoupled at the AREF pin by a capacitor for better noise performance
  */
 
 void initA2D(uint8_t ref = kA2dReferenceAVCC);
@@ -200,6 +243,6 @@ inline void setA2DVoltageReference256V() {
  * \hideinitializer
  */
 
-int readA2D(int8_t channel);
+uint16_t readA2D(int8_t channel);
 
 #endif

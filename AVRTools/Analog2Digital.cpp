@@ -105,7 +105,7 @@ void setA2DVoltageReference(A2DVoltageReference ref) {
   _delay_us(125);
 }
 
-int readA2D(int8_t channel) {
+uint16_t readA2D(int8_t channel) {
   // Differentiate between ATmega328p and ATmega2560
 #if defined(__AVR_ATmega2560__)
 
@@ -147,4 +147,30 @@ int readA2D(int8_t channel) {
 
   // NOTE: must read ADCL before ADCH
   return ADCL | (static_cast<uint16_t>(ADCH) << 8);
+}
+
+uint16_t readVCC() {
+
+// Read 1.1V reference against AVcc
+// set the reference to Vcc and the measurement to the internal 1.1V reference
+#if defined(__AVR_ATmega2560__)
+    ADMUX = (1 << REFS0) /* AVCC with external capacitor at AREF pin */
+            | (0 << ADLAR) /* Left Adjust Result: disabled*/
+            | (0x1e << MUX0) /* Internal Reference (VBG) */;
+#else // ATmega328p
+    ADMUX = (1 << REFS0) /* AVCC with external capacitor at AREF pin */
+            | (0 << ADLAR) /* Left Adjust Result: disabled*/
+            | (0x0e << MUX0) /* Internal Reference (VBG) */;
+#endif
+
+    // Need to let ADC system restablize
+    _delay_us(125);
+
+    // Start A2D conversion
+    ADCSRA |= (1 << ADSC);
+
+    // ADSC is cleared when the conversion finishes
+    while (ADCSRA & (1 << ADSC));
+
+    return (AVRTOOLS_VCC_CALIBRATION_VALUE) / (ADCL | (static_cast<uint16_t>(ADCH) << 8)) /* calculate the Vcc value */;
 }
