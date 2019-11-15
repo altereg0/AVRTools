@@ -37,6 +37,7 @@
 
 #ifndef AVRTOOLS_VCC_CALIBRATION_VALUE
 #define AVRTOOLS_VCC_CALIBRATION_VALUE 1125300L
+#endif
 
 #if defined(__AVR_ATmega2560__)
 
