@@ -372,6 +372,15 @@ public:
    * \returns True if data is available in the stream; false if not.
    */
   virtual bool available();
+
+  /*!
+   * \brief Clear terminal sending special command \033c
+   * There is also can be \033[H or \033[2J
+   * Please implement yourself
+   */
+
+  void clear_terminal();
+
 };
 
 #endif

@@ -260,3 +260,8 @@ int Serial0::peek() {
 bool Serial0::available() {
   return USART0::available();
 }
+
+void Serial0::clear_terminal() {
+  const char* command = "\033c";
+  USART0::write(command);
+}
