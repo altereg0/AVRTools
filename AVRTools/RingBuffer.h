@@ -125,7 +125,7 @@ public:
   void clear();
 
 private:
-  unsigned char           *mBuffer;
+  uint8_t                 *mBuffer;
   volatile unsigned short mSize;
   volatile unsigned short mLength;
   volatile unsigned short mIndex;

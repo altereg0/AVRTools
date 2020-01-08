@@ -73,7 +73,7 @@ public:
    * \returns the next element.
    */
   T pull() {
-    T element = 0;
+    T element;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       if (mLength) {
         element = mBuffer[mIndex];
