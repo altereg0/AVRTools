@@ -52,6 +52,19 @@ void Writer::flush() {
   // Default does nothing
 }
 
+size_t Writer::print(const __FlashStringHelper *ifsh)
+{
+  PGM_P p = reinterpret_cast<PGM_P>(ifsh);
+  size_t n = 0;
+  while (1) {
+    unsigned char c = pgm_read_byte(p++);
+    if (c == 0) break;
+    if (write(c)) n++;
+    else break;
+  }
+  return n;
+}
+
 size_t Writer::print(const char *str, bool addLn) {
   size_t n = write(str);
   if (addLn) {
@@ -134,6 +147,13 @@ size_t Writer::print(double d, int digits, bool addLn) {
   if (addLn) {
     n += println();
   }
+  return n;
+}
+
+size_t Writer::println(const __FlashStringHelper *ifsh)
+{
+  size_t n = print(ifsh);
+  n += println();
   return n;
 }
 

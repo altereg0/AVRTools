@@ -36,6 +36,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "WString.h"
 
 #ifndef SERIAL_OUTPUT_EOL
 #define SERIAL_OUTPUT_EOL    '\n'
@@ -126,6 +127,11 @@ public:
    * \hideinitializer
    */
   size_t print(const char *str, bool addLn = false);
+
+  /*!
+   *
+   */
+  size_t print(const __FlashStringHelper *);
 
   /*!
    * \brief Print a number of bytes to the output stream, with or without adding
@@ -265,6 +271,12 @@ public:
    * \hideinitializer
    */
   size_t print(double d, int digits = 2, bool addLn = false);
+
+  /*!
+   *
+   */
+
+  size_t println(const __FlashStringHelper *);
 
   /*!
    * \brief Print a null-terminated string to the output stream, adding
