@@ -30,8 +30,8 @@
 #define AVRTOOLS_TM1637_H
 
 #include <stdint.h>
-#include "ArduinoPins.h"
-#include "GpioPinMacros.h"
+#include "../ArduinoPins.h"
+#include "../GpioPinMacros.h"
 
 // ----------------------------------------------------------------------------
 // PIN / PORT configuration

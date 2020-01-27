@@ -21,7 +21,7 @@
 
 //#define OW_ALTER_PIN pPin12
 #ifndef OW_TWO_PINS
-#define OW_ALTER_PIN pPin03
+#define OW_ALTER_PIN pPin02
 #else
 #define OW_ALTER_PIN_IN pPin12
 #define OW_ALTER_PIN_OUT pPin13

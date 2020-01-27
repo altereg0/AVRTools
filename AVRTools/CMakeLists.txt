@@ -7,7 +7,6 @@ add_compile_definitions( AVRTOOLS_RESET_MCU )
 set( AVRTOOLS_SRC_FILES
         abi.cpp
         Analog2Digital.cpp
-        DS1307RTC.cpp
         I2cLcd.cpp
         I2cMaster.cpp
         I2cSlave.cpp
@@ -20,7 +19,6 @@ set( AVRTOOLS_SRC_FILES
         RingBuffer.cpp
         SPI.cpp
         SystemClock.cpp
-        tm1637.cpp
         USART0.cpp
         USART0Minimal.cpp
 #        USART1.cpp
@@ -63,3 +61,18 @@ avr_target_include_common_directories(
 )
 message( STATUS "WSTRING library: ${CMAKE_CURRENT_SOURCE_DIR}" )
 message( ">\tCurrent build type: ${CMAKE_BUILD_TYPE}" )
+
+#####################################################################
+# DRIVERS
+#####################################################################
+set( AVRTOOLS_DRIVERS_SRC_FILES
+        drivers/DS1307RTC.cpp
+        drivers/tm1637.cpp
+        drivers/TroykaDHT.cpp
+        )
+
+add_avr_library( avrtools-drivers ${AVRTOOLS_DRIVERS_SRC_FILES} )
+avr_target_link_libraries(
+        avrtools-drivers
+        avrtools
+)

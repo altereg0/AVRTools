@@ -154,6 +154,7 @@ public:
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       return (mSize - mLength) <= 0;
     }
+    return 1; //fix compiler error "control reaches end of non-void-function"
   }
 
   /*!
@@ -165,6 +166,7 @@ public:
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       return (mSize - mLength) > 0;
     }
+    return 0; //fix compiler error "control reaches end of non-void-function"
   }
 
   /*!

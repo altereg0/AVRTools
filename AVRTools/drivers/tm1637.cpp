@@ -27,9 +27,9 @@
 //
 
 #include <avr/io.h>
-#include "ArduinoPins.h"
-#include "GpioPinMacros.h"
-#include "SystemClock.h"
+#include "../ArduinoPins.h"
+#include "../GpioPinMacros.h"
+#include "../SystemClock.h"
 #include "tm1637.h"
 #include "tm1637font.h"
 
